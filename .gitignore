@@ -31,10 +31,14 @@
 *.out
 *.app
 
-# Test file
-test.*
-test/
+# vscode
+.vscode/
+vscode.*
+
+# build
+build/
 
 # Other files
-.vscode/
 junk/
+test.*
+test/

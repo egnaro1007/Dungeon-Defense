@@ -3,23 +3,17 @@
 #include <vector>
 #include <string>
 
+#include "platform.hpp"
+
 #include "debug.hpp"
 
-class plaform {
-    public:
-        int top;
-        int bottom;
-        int left;
-        int right;
-};
-
-std::vector<plaform> loadLevel(std::string path) {
-    std::vector<plaform> level;
+std::vector<platform> loadLevel(std::string path) {
+    std::vector<platform> level;
     std::ifstream file(path);
     if (file.is_open()) {
         std::string line;
         while (std::getline(file, line)) {
-            plaform p;
+            platform p;
             p.top = std::stoi(line.substr(0, line.find(" ")));
             line = line.substr(line.find(" ") + 1);
             p.bottom = std::stoi(line.substr(0, line.find(" ")));

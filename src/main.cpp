@@ -1,8 +1,7 @@
-#include "define.h"
-#include "entity.hpp"
-#include "level.hpp"
-
-#include "debug.hpp"
+#include "../include/define.h"
+#include "../include/entity.hpp"
+//#include "../include/platform.hpp" // Đã bao gồm trong level.hpp
+#include "../include/level.hpp"
 
 void render(Entity &p_entity);
 void renderEverything(Entity entity[]);
@@ -37,7 +36,7 @@ int main(int argc, char** argv)
 
     int count = 0;
 
-    std::vector<plaform> levelPlaform = loadLevel(_FiLE_PATH_);
+    std::vector<platform> levelPlaform = loadLevel("level.dat");
 
     while (running) 
     {
@@ -50,20 +49,17 @@ int main(int argc, char** argv)
         } while (i < 3);
         
         // Rơi tự do
-        int fallDistance = _MAIN_CHARACTER_GRAVITY_;
-        for (plaform p : levelPlaform) {
-            // std::cout<<entities[1].getBottom() <<std::endl;
-            // std::cout<<fallDistance <<std::endl;
-            // std::cout << std::endl;
-            if (entities[1].getBottom() + fallDistance >= p.top) {
-                fallDistance = p.top - entities[1].getBottom();//std::cout << p.top << std::endl;
-            }
-        }
+        // int fallDistance = _MAIN_CHARACTER_GRAVITY_;
+        // for (platform p : levelPlaform) {
+        //     if (entities[1].getBottom() + fallDistance >= p.top) {
+        //         if (entities[1].getRight() > p.left && entities[1].getLeft() < p.right) {
+        //             fallDistance = p.top - entities[1].getBottom();
+        //         }
+        //         std::cout << p.top << " " << p.bottom << " " << p.left << " " << p.right << std::endl;
+        //     }
+        // }
+        // entities[1].move(0, fallDistance);
 
-
-        entities[1].move(0, fallDistance);
-
-std::cout << "y: " << entities[1].getCurentFrame().y << std::endl;
 
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
@@ -79,10 +75,12 @@ std::cout << "y: " << entities[1].getCurentFrame().y << std::endl;
 
 
                     if (keys[SDL_SCANCODE_W]) {
-                        entities[1].move(0, -(_MAIN_CHARACTER_VELOCITY_ * 10));
+                        entities[1].move(0, -(_MAIN_CHARACTER_VELOCITY_));
                     }
 
-                    
+                    if (keys[SDL_SCANCODE_S]) {
+                        entities[1].move(0, _MAIN_CHARACTER_VELOCITY_);
+                    }         
 
                     if (keys[SDL_SCANCODE_A]) {
                         entities[1].move(-_MAIN_CHARACTER_VELOCITY_, 0);

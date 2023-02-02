@@ -1,29 +1,5 @@
-#include "define.h"
-
-class Entity 
-{
-public:
-    Entity(int p_x, int p_y, int p_w, int p_h, SDL_Texture* p_texture);
-
-    void init(int x_init, int y_init, int w_init, int h_init);
-    int getX();
-    int getY();
-    int getW();
-    int getH();
-    SDL_Texture* getTexture();
-    SDL_Rect getCurentFrame();
-
-    int getBottom();
-    void move(int x_move, int y_move);
-private:
-    int x;
-    int y;
-    int w;
-    int h;
-    
-    SDL_Texture* texture;
-    SDL_Rect curentFrame;
-};
+#include <SDL2/SDL.h>
+#include "../include/entity.hpp"
 
 Entity::Entity(int p_x, int p_y, int p_w, int p_h, SDL_Texture* p_texture) {
     x = p_x;
@@ -65,9 +41,17 @@ SDL_Rect Entity::getCurentFrame() {
     return curentFrame;
 }
 
-
+int Entity::getTop() {
+    return curentFrame.y;
+}
+int Entity::getLeft() {
+    return curentFrame.x;
+}
 int Entity::getBottom() {
     return curentFrame.y + curentFrame.h;
+}
+int Entity::getRight() {
+    return curentFrame.x + curentFrame.w;
 }
 
 void Entity::move(int x_move, int y_move) {
