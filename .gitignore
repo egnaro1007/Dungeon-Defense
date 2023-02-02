@@ -14,7 +14,7 @@
 # Compiled Dynamic libraries
 *.so
 *.dylib
-*.dll
+#*.dll
 
 # Fortran module files
 *.mod
@@ -35,10 +35,8 @@
 .vscode/
 vscode.*
 
-# build
-build/
-
 # Other files
+lib/
 junk/
 test.*
 test/
