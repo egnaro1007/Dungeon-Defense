@@ -5,6 +5,8 @@
 
 void render(Entity &p_entity);
 void renderEverything(Entity entity[]);
+bool collisionCheck(Entity &p_entity, platform &p_platform, int &nextMoveDistanceX, int &nextMoveDistanceY);
+bool platformCollisionCheck(Entity &p_entity, std::vector<platform> &p_platform, int &nextMoveDistanceX, int &nextMoveDistanceY);
 
 int main(int argc, char** argv)
 {
@@ -31,8 +33,9 @@ int main(int argc, char** argv)
     entities[2].init(200, 200, 37, 25);
 
     
-    const int _MAIN_CHARACTER_VELOCITY_ = 20;
-    const int _MAIN_CHARACTER_GRAVITY_ = 3; 
+    int _MAIN_CHARACTER_VELOCITY_ = 20;
+    int _MAIN_CHARACTER_GRAVITY_ = 3; 
+    int zero = 0;
 
     int count = 0;
 
@@ -41,6 +44,8 @@ int main(int argc, char** argv)
     while (running) 
     {
         //frameDelayy();
+
+        //std::cout << collisionCheck(entities[1], levelPlaform[0]);
 
         int i = 0;
         do {
@@ -60,7 +65,6 @@ int main(int argc, char** argv)
         // }
         // entities[1].move(0, fallDistance);
 
-
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
                 case SDL_QUIT:
@@ -78,7 +82,7 @@ int main(int argc, char** argv)
                         entities[1].move(0, -(_MAIN_CHARACTER_VELOCITY_));
                     }
 
-                    if (keys[SDL_SCANCODE_S]) {
+                    if (keys[SDL_SCANCODE_S] && !platformCollisionCheck(entities[1], levelPlaform, zero, _MAIN_CHARACTER_VELOCITY_)) {
                         entities[1].move(0, _MAIN_CHARACTER_VELOCITY_);
                     }         
 

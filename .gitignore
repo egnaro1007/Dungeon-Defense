@@ -40,3 +40,4 @@ lib/
 junk/
 test.*
 test/
+*.lnk

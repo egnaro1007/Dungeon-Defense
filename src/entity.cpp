@@ -57,4 +57,6 @@ int Entity::getRight() {
 void Entity::move(int x_move, int y_move) {
     curentFrame.x += x_move;
     curentFrame.y += y_move;
+
+    if (curentFrame.y > 1080) curentFrame.y -= 951;
 }
