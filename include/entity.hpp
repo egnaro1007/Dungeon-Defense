@@ -3,27 +3,27 @@
 class Entity 
 {
 public:
-    Entity(int p_x, int p_y, int p_w, int p_h, SDL_Texture* p_texture);
+    void setTexture(SDL_Texture* p_texture, int p_frame_width, int p_frame_height);
+    void setFrame(int p_frame);
+    void setSize(int p_width, int p_height);
+    void gotoXY(int p_x, int p_y);
+    void move(int x_move, int y_move);
 
-    void init(int x_init, int y_init, int w_init, int h_init);
-    int getX();
-    int getY();
-    int getW();
-    int getH();
     SDL_Texture* getTexture();
+    SDL_Rect getSrc();
     SDL_Rect getCurentFrame();
 
     int getTop();
     int getBottom();
     int getLeft();
     int getRight();
-    void move(int x_move, int y_move);
 private:
-    int x;
-    int y;
-    int w;
-    int h;
-    
     SDL_Texture* texture;
+
+    int frame;
+    int frame_width;
+    int frame_height;
+    
+    SDL_Rect src;
     SDL_Rect curentFrame;
 };

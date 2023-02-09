@@ -1,41 +1,43 @@
 #include <SDL2/SDL.h>
 #include "../include/entity.hpp"
 
-Entity::Entity(int p_x, int p_y, int p_w, int p_h, SDL_Texture* p_texture) {
-    x = p_x;
-    y = p_y;
-    w = p_w;
-    h = p_h;
-
+void Entity::setTexture(SDL_Texture* p_texture, int p_frame_width, int p_frame_height) {
     texture = p_texture;
+    frame = 0;
+    frame_width = p_frame_width;
+    frame_height = p_frame_height;
 
-    curentFrame.x = x;
-    curentFrame.y = y;
-    curentFrame.w = w;
-    curentFrame.h = h;
-}
-
-void Entity::init(int x_init, int y_init, int w_init, int h_init) {
-    curentFrame.x = x_init;
-    curentFrame.y = y_init;
-    curentFrame.w = w_init;
-    curentFrame.h = h_init;
+    setFrame(0);
 }
 
-int Entity::getX() {
-    return x;
+void Entity::setFrame(int p_frame) {
+    frame = p_frame;
+    src.x = frame * frame_width;
+    src.y = 0;
+    src.w = frame_width;
+    src.h = frame_height;
 }
-int Entity::getY() {
-    return y;
+
+void Entity::setSize(int p_width, int p_height) {
+    curentFrame.w = p_width;
+    curentFrame.h = p_height;
 }
-int Entity::getW() {
-    return w;
+void Entity::gotoXY(int p_x, int p_y) {
+    curentFrame.x = p_x;
+    curentFrame.y = p_y;
 }
-int Entity::getH() {
-    return h;
+void Entity::move(int x_move, int y_move) {
+    curentFrame.x += x_move;
+    curentFrame.y += y_move;
+
+    if (curentFrame.y > 1080) curentFrame.y -= 951;
 }
+
 SDL_Texture* Entity::getTexture() {
     return texture;
+}
+SDL_Rect Entity::getSrc() {
+    return src;
 }
 SDL_Rect Entity::getCurentFrame() {
     return curentFrame;
@@ -52,11 +54,4 @@ int Entity::getBottom() {
 }
 int Entity::getRight() {
     return curentFrame.x + curentFrame.w;
-}
-
-void Entity::move(int x_move, int y_move) {
-    curentFrame.x += x_move;
-    curentFrame.y += y_move;
-
-    if (curentFrame.y > 1080) curentFrame.y -= 951;
 }

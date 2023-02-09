@@ -4,6 +4,7 @@
 #include "../include/level.hpp"
 
 void render(Entity &p_entity);
+void renderBackground(SDL_Texture* p_texture);
 void renderEverything(Entity entity[]);
 bool collisionCheck(Entity &p_entity, platform &p_platform, int &nextMoveDistanceX, int &nextMoveDistanceY);
 bool platformCollisionCheck(Entity &p_entity, std::vector<platform> &p_platform, int &nextMoveDistanceX, int &nextMoveDistanceY);
@@ -17,41 +18,46 @@ int main(int argc, char** argv)
     SDL_Event event;
     SDL_Event event1;
 
-    SDL_Texture* background = NULL;
-    SDL_Texture* character = NULL;
-    background = loadImage("assets/background.png");
-    character = loadImage("assets/character.png");
+    SDL_Texture* background = loadImage("assets/background.png");
+    SDL_Texture* human_run = loadImage("assets/human/run.png");
+    SDL_Texture* human_idle = loadImage("assets/human/idle.png");
 
-    Entity entities[3] = {
-        Entity (0, 0, 1920, 1080, background), 
-        Entity (0, 0, 77, 25, character), 
-        Entity (0, 0, 37, 25, character)};
+    Entity entities[3];
 
     
-    entities[0].init(0, 0, _SCREEN_WIDTH_, _SCREEN_HEIGHT_);
-    entities[1].init(100, 100, 37*3, 25*3);
-    entities[2].init(200, 200, 37, 25);
+    
+    entities[1].setTexture(human_idle, 78, 29); 
+    entities[1].gotoXY(100, 100); 
+    entities[1].setSize(78*3, 25*3);
 
+    //std::cout << entities[1].getSrc().x << " " << entities[1].getSrc().y << " " << entities[1].getSrc().w << " " << entities[1].getSrc().h << std::endl;
     
     int _MAIN_CHARACTER_VELOCITY_ = 20;
     int _MAIN_CHARACTER_GRAVITY_ = 3; 
     int zero = 0;
 
-    int count = 0;
+    int frame = 0;
 
     std::vector<platform> levelPlaform = loadLevel("level.dat");
 
     while (running) 
     {
-        //frameDelayy();
+        frameDelayy();
+        SDL_RenderClear(renderer);
+        renderBackground(background);
 
+        if (animationDelayCheck()) {
+            if (frame < 7) {
+                frame++;
+            }
+            else {
+                frame = 0;
+            }
+            entities[1].setFrame(frame);
+        }
         //std::cout << collisionCheck(entities[1], levelPlaform[0]);
 
-        int i = 0;
-        do {
-            render(entities[i]);
-            i++;
-        } while (i < 3);
+        render(entities[1]);
         
         // Rơi tự do
         // int fallDistance = _MAIN_CHARACTER_GRAVITY_;
@@ -71,6 +77,7 @@ int main(int argc, char** argv)
                     running = false;
                     break;
                 case SDL_KEYDOWN:
+                    {entities[1].setTexture(human_run, 78, 29);
                     SDL_PumpEvents();
                     const Uint8 *keys = SDL_GetKeyboardState(NULL);
                     if (keys[SDL_SCANCODE_ESCAPE]) {
@@ -92,6 +99,9 @@ int main(int argc, char** argv)
                     if (keys[SDL_SCANCODE_D]) {
                         entities[1].move(_MAIN_CHARACTER_VELOCITY_, 0);
                     }
+                    break;}
+                case SDL_KEYUP:
+                    entities[1].setTexture(human_idle, 78, 29);
                     break;
             }
         }
@@ -105,14 +115,26 @@ int main(int argc, char** argv)
 
 
 void render(Entity &p_entity) {
-    SDL_Rect src;
-    src.x = p_entity.getX();
-    src.y = p_entity.getY();
-    src.w = p_entity.getW();
-    src.h = p_entity.getH();
+    SDL_Rect src = p_entity.getSrc();
 
     SDL_Rect dest = p_entity.getCurentFrame();
     
 
     SDL_RenderCopy(renderer, p_entity.getTexture(), &src, &dest);
+}
+
+void renderBackground(SDL_Texture* p_texture) {
+    SDL_Rect src;
+    src.x = 0;
+    src.y = 0;
+    src.w = _SCREEN_WIDTH_;
+    src.h = _SCREEN_HEIGHT_;
+
+    SDL_Rect dest;
+    dest.x = 0;
+    dest.y = 0;
+    dest.w = _SCREEN_WIDTH_;
+    dest.h = _SCREEN_HEIGHT_;
+
+    SDL_RenderCopy(renderer, p_texture, &src, &dest);
 }
