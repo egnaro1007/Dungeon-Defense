@@ -5,8 +5,6 @@
 
 #include "platform.hpp"
 
-#include "debug.hpp"
-
 std::vector<platform> loadLevel(std::string path) {
     std::vector<platform> level;
     std::ifstream file(path);
@@ -26,7 +24,7 @@ std::vector<platform> loadLevel(std::string path) {
         file.close();
     }
     else {
-        crash(std::cout, "File", true);
+        std::cout << "Can't open file level.dat";
     }
     return level;
 }

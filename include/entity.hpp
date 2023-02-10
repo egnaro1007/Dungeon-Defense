@@ -3,6 +3,8 @@
 class Entity 
 {
 public:
+    void init(SDL_Texture* p_texture, int p_frame_width, int p_frame_height, int p_width, int p_height, int p_x, int p_y);
+
     void setTexture(SDL_Texture* p_texture, int p_frame_width, int p_frame_height);
     void setFrame(int p_frame);
     void setSize(int p_width, int p_height);

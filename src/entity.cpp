@@ -1,13 +1,17 @@
 #include <SDL2/SDL.h>
 #include "../include/entity.hpp"
 
+void Entity::init(SDL_Texture* p_texture, int p_frame_width, int p_frame_height, int p_width, int p_height, int p_x, int p_y) {
+    setTexture(p_texture, p_frame_width, p_frame_height);
+    setFrame(0);
+    setSize(p_width, p_height);
+    gotoXY(p_x, p_y);
+}
+
 void Entity::setTexture(SDL_Texture* p_texture, int p_frame_width, int p_frame_height) {
     texture = p_texture;
-    frame = 0;
     frame_width = p_frame_width;
     frame_height = p_frame_height;
-
-    setFrame(0);
 }
 
 void Entity::setFrame(int p_frame) {

@@ -1,34 +1,53 @@
-#include "../include/define.h"
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+#include <iostream>
+#include <vector>
+//#include "../include/define.h"
 #include "../include/entity.hpp"
-//#include "../include/platform.hpp" // Đã bao gồm trong level.hpp
+// #include "../include/platform.hpp" // Đã bao gồm trong level.hpp
 #include "../include/level.hpp"
 
+#define _SCREEN_WIDTH_ 1920
+#define _SCREEN_HEIGHT_ 1080
+
+
+// Utils.cpp
+SDL_Texture* loadImage(SDL_Renderer* renderer, const char* file);
+void frameDelayy();
+bool spriteDelayCheck();
+
+// Main.cpp
 void render(Entity &p_entity);
 void renderBackground(SDL_Texture* p_texture);
-void renderEverything(Entity entity[]);
-bool collisionCheck(Entity &p_entity, platform &p_platform, int &nextMoveDistanceX, int &nextMoveDistanceY);
+// void renderEverything(Entity entity[]);
+// bool collisionCheck(Entity &p_entity, platform &p_platform, int &nextMoveDistanceX, int &nextMoveDistanceY);
 bool platformCollisionCheck(Entity &p_entity, std::vector<platform> &p_platform, int &nextMoveDistanceX, int &nextMoveDistanceY);
+
+
+// Create window and renderer
+static SDL_Window* window = SDL_CreateWindow("Test window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, _SCREEN_WIDTH_, _SCREEN_HEIGHT_, SDL_WINDOW_SHOWN);
+static SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED /* | SDL_RENDERER_PRESENTVSYNC */);
 
 int main(int argc, char** argv)
 {
-    if (SDL_Init(SDL_INIT_EVERYTHING) != 0) crash(std::cout, "Init", true);
+    if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
+        std::cout << "Init SDL failed: " << SDL_GetError() << "\n";
+        SDL_Quit();
+        return 1;
+    }
 
     
     bool running = true;
     SDL_Event event;
     SDL_Event event1;
 
-    SDL_Texture* background = loadImage("assets/background.png");
-    SDL_Texture* human_run = loadImage("assets/human/run.png");
-    SDL_Texture* human_idle = loadImage("assets/human/idle.png");
+    SDL_Texture* background = loadImage(renderer, "assets/background.png");
+    SDL_Texture* human_run = loadImage(renderer, "assets/human/run.png");
+    SDL_Texture* human_idle = loadImage(renderer, "assets/human/idle.png");
 
     Entity entities[3];
 
-    
-    
-    entities[1].setTexture(human_idle, 78, 29); 
-    entities[1].gotoXY(100, 100); 
-    entities[1].setSize(78*3, 25*3);
+    entities[1].init(human_idle, 78, 29, 78*3, 25*3, 100, 100);    
 
     //std::cout << entities[1].getSrc().x << " " << entities[1].getSrc().y << " " << entities[1].getSrc().w << " " << entities[1].getSrc().h << std::endl;
     
@@ -42,11 +61,11 @@ int main(int argc, char** argv)
 
     while (running) 
     {
-        frameDelayy();
+        //frameDelayy();
         SDL_RenderClear(renderer);
         renderBackground(background);
 
-        if (animationDelayCheck()) {
+        if (spriteDelayCheck()) {
             if (frame < 7) {
                 frame++;
             }
