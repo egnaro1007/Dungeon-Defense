@@ -1,5 +1,6 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_mixer.h>
 #include <iostream>
 #include <vector>
 //#include "../include/define.h"
@@ -28,6 +29,7 @@ bool platformCollisionCheck(Entity &p_entity, std::vector<platform> &p_platform,
 static SDL_Window* window = SDL_CreateWindow("Test window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, _SCREEN_WIDTH_, _SCREEN_HEIGHT_, SDL_WINDOW_SHOWN);
 static SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED /* | SDL_RENDERER_PRESENTVSYNC */);
 
+
 int main(int argc, char** argv)
 {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
@@ -35,11 +37,13 @@ int main(int argc, char** argv)
         SDL_Quit();
         return 1;
     }
-
+    Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024);
     
     bool running = true;
     SDL_Event event;
-    SDL_Event event1;
+
+    
+    Mix_Music* music = Mix_LoadMUS("assets/background.mp3");
 
     SDL_Texture* background = loadImage(renderer, "assets/background.png");
     SDL_Texture* human_run = loadImage(renderer, "assets/human/run.png");
@@ -47,7 +51,7 @@ int main(int argc, char** argv)
 
     Entity entities[3];
 
-    entities[1].init(human_idle, 78, 29, 78*3, 25*3, 100, 100);    
+    entities[1].init(human_idle, 37, 29, 37*3, 29*3, 100, 100);    
 
     //std::cout << entities[1].getSrc().x << " " << entities[1].getSrc().y << " " << entities[1].getSrc().w << " " << entities[1].getSrc().h << std::endl;
     
@@ -59,11 +63,13 @@ int main(int argc, char** argv)
 
     std::vector<platform> levelPlaform = loadLevel("level.dat");
 
+    Mix_PlayMusic(music, -1);
     while (running) 
     {
         //frameDelayy();
         SDL_RenderClear(renderer);
         renderBackground(background);
+        Mix_ResumeMusic();
 
         if (spriteDelayCheck()) {
             if (frame < 7) {
@@ -96,7 +102,8 @@ int main(int argc, char** argv)
                     running = false;
                     break;
                 case SDL_KEYDOWN:
-                    {entities[1].setTexture(human_run, 78, 29);
+                {
+                    entities[1].setTexture(human_run, 37, 29);
                     SDL_PumpEvents();
                     const Uint8 *keys = SDL_GetKeyboardState(NULL);
                     if (keys[SDL_SCANCODE_ESCAPE]) {
@@ -118,9 +125,10 @@ int main(int argc, char** argv)
                     if (keys[SDL_SCANCODE_D]) {
                         entities[1].move(_MAIN_CHARACTER_VELOCITY_, 0);
                     }
-                    break;}
+                    break;
+                }
                 case SDL_KEYUP:
-                    entities[1].setTexture(human_idle, 78, 29);
+                    entities[1].setTexture(human_idle, 37, 29);
                     break;
             }
         }
