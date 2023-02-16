@@ -4,6 +4,7 @@
 
 const int _FPS_ = 30;
 const int _ANIMATION_PER_SECOND_ = 10;
+const int _MAIN_CHARACTER_VELOCITY_ = 20; // pixel per second
 
 // Load texture from image file
 SDL_Texture* loadImage(const char* file);
@@ -23,8 +24,6 @@ SDL_Texture* loadImage(SDL_Renderer* renderer, const char* file)
 
 
 const int frameDelay = 1000 / _FPS_;
-const int animationDelay = 1000 / _ANIMATION_PER_SECOND_;
-
 const Uint32 FrameStart = SDL_GetTicks();
 const Uint32 frameTime = SDL_GetTicks() - FrameStart;
 void frameDelayy() {
@@ -33,6 +32,8 @@ void frameDelayy() {
     }
 }
 
+
+const int animationDelay = 1000 / _ANIMATION_PER_SECOND_;
 Uint32 lastTimeAnimation = 0;
 bool spriteDelayCheck() {
    Uint32 now = SDL_GetTicks();
@@ -43,3 +44,14 @@ bool spriteDelayCheck() {
     return false;
 }
 
+
+const int moveDelay = 1000 / _MAIN_CHARACTER_VELOCITY_;
+Uint32 lastTimeMove = 0;
+bool canMove() {
+   Uint32 now = SDL_GetTicks();
+    if (now - lastTimeMove > moveDelay) {
+        lastTimeMove = now;
+        return true;
+    }
+    return false;
+}

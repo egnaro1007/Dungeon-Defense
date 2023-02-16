@@ -22,7 +22,7 @@ void render(Entity &p_entity);
 void renderBackground(SDL_Texture* p_texture);
 // void renderEverything(Entity entity[]);
 // bool collisionCheck(Entity &p_entity, platform &p_platform, int &nextMoveDistanceX, int &nextMoveDistanceY);
-bool platformCollisionCheck(Entity &p_entity, std::vector<platform> &p_platform, int &nextMoveDistanceX, int &nextMoveDistanceY);
+bool platformCollisionCheck(Entity &p_entity, std::vector<platform> &p_platform, int nextMoveDistanceX, int nextMoveDistanceY);
 
 
 // Create window and renderer
@@ -111,18 +111,18 @@ int main(int argc, char** argv)
                     }
 
 
-                    if (keys[SDL_SCANCODE_W]) {
+                    if (keys[SDL_SCANCODE_W] && !platformCollisionCheck(entities[1], levelPlaform, 0, -_MAIN_CHARACTER_VELOCITY_)) {
                         entities[1].move(0, -(_MAIN_CHARACTER_VELOCITY_));
                     }
 
-                    if (keys[SDL_SCANCODE_S] && !platformCollisionCheck(entities[1], levelPlaform, zero, _MAIN_CHARACTER_VELOCITY_)) {
+                    if (keys[SDL_SCANCODE_S] && !platformCollisionCheck(entities[1], levelPlaform, 0, _MAIN_CHARACTER_VELOCITY_)) {
                         entities[1].move(0, _MAIN_CHARACTER_VELOCITY_);
                     }         
 
-                    if (keys[SDL_SCANCODE_A]) {
+                    if (keys[SDL_SCANCODE_A] && !platformCollisionCheck(entities[1], levelPlaform, -_MAIN_CHARACTER_VELOCITY_, 0)) {
                         entities[1].move(-_MAIN_CHARACTER_VELOCITY_, 0);
                     }
-                    if (keys[SDL_SCANCODE_D]) {
+                    if (keys[SDL_SCANCODE_D] && !platformCollisionCheck(entities[1], levelPlaform, _MAIN_CHARACTER_VELOCITY_, 0)) {
                         entities[1].move(_MAIN_CHARACTER_VELOCITY_, 0);
                     }
                     break;
