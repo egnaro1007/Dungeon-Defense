@@ -2,7 +2,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
-const int _FPS_ = 30;
+const int _FPS_ = 240;
 const int _ANIMATION_PER_SECOND_ = 10;
 const int _MAIN_CHARACTER_VELOCITY_ = 20; // pixel per second
 
@@ -39,18 +39,6 @@ bool spriteDelayCheck() {
    Uint32 now = SDL_GetTicks();
     if (now - lastTimeAnimation > animationDelay) {
         lastTimeAnimation = now;
-        return true;
-    }
-    return false;
-}
-
-
-const int moveDelay = 1000 / _MAIN_CHARACTER_VELOCITY_;
-Uint32 lastTimeMove = 0;
-bool canMove() {
-   Uint32 now = SDL_GetTicks();
-    if (now - lastTimeMove > moveDelay) {
-        lastTimeMove = now;
         return true;
     }
     return false;
