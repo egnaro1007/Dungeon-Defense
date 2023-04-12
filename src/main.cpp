@@ -28,6 +28,7 @@ void renderBackground(SDL_Texture* p_texture);
 // void renderEverything(Entity entity[]);
 // bool collisionCheck(Entity &p_entity, platform &p_platform, int &nextMoveDistanceX, int &nextMoveDistanceY);
 bool platformCollisionCheck(Entity &p_entity, std::vector<platform> &p_platform, int nextMoveDistanceX, int nextMoveDistanceY);
+bool attackCheck(Entity &p_attacker, Entity &p_opponent, int attackRangeX, int attackRangeY, int direction);
 
 
 // Create window and renderer
@@ -51,6 +52,7 @@ int main(int argc, char** argv)
     SDL_Texture* background = loadImage(renderer, "assets/background.png");
     SDL_Texture* human_run = loadImage(renderer, "assets/human/run.png");
     SDL_Texture* human_idle = loadImage(renderer, "assets/human/idle.png");
+    SDL_Texture* human_attack = loadImage(renderer, "assets/human/attack.png");
     SDL_Texture* pig_run = loadImage(renderer, "assets/pig/run.png");
 
     // Load level's platform
@@ -60,7 +62,7 @@ int main(int argc, char** argv)
     //Entity entities[3];
 
     Human player;
-    player.init(human_idle, 8, 37, 29, 37*3, 29*3, 100, 100); 
+    player.init(human_run, 8, 37, 29, 37*3, 29*3, 100, 100); 
 
     std::vector<Pig> pigs;
 
@@ -87,16 +89,15 @@ int main(int argc, char** argv)
     
 
     // Play music
-    Mix_PlayMusic(music, -1);
+    // Mix_PlayMusic(music, -1);
     // Declare running variable
     bool running = true;
     SDL_Event event;
+    srand(time(NULL));
     // Main loop
     while (running) 
     {
-        frameDelayy();
-        SDL_RenderClear(renderer);
-        renderBackground(background);
+        // frameDelayy();
         // Mix_ResumeMusic();
 
         // if (spriteDelayCheck()) {
@@ -109,10 +110,9 @@ int main(int argc, char** argv)
         //     entities[1].setFrame(frame);
         // }
         // std::cout << collisionCheck(entities[1], levelPlaform[0]);
+       
 
-        player.updateSprite();
-        render(player);
-
+    // PIG
 
         // Pig spawns
         Uint32 now = SDL_GetTicks();
@@ -120,7 +120,8 @@ int main(int argc, char** argv)
             // After spawnTime ms
             // Spawn a new pig
             Pig newPig;
-            newPig.init(pig_run, 6, 19, 22, 19*4, 22*4, 100, 100);
+            if (rand() % 2 == 0) newPig.init(pig_run, 6, 19, 22, 19*4, 22*4, 100, 100);
+            else newPig.init(pig_run, 6, 19, 22, 19*4, 22*4, 1820, 100);
             pigs.push_back(newPig);
             // Reset timer
             lastTimeSpawn = now;
@@ -128,8 +129,9 @@ int main(int argc, char** argv)
         }
         
         unsigned int numberOfPigs = pigs.size();
-        // std::cout << "Pig rendered: ";
         for (unsigned int i = 0; i < numberOfPigs; i++) {
+            // Move pig
+
             // Delete pig when it's out of screen
             if (pigs[i].getCurentFrame().y > 1080) pigs.erase(pigs.begin() + i); // pig.move(0, -950);
             // Check collision with platform to set falling state
@@ -139,14 +141,18 @@ int main(int argc, char** argv)
             else {
                 pigs[i].setFallingState(false);
             }
-            render(pigs[i]);
             pigs[i].updateLocation();
-            // std::cout << i << ", ";
+
+
+            // Check collision with player's attack
+            int playerAttackRangeX = player.getCurentFrame().w;
+            int playerAttackRangeY = 0;
+            int direction = player.getStatus();
+            if (!player.isFalling() && player.attackCooldown() && attackCheck(player, pigs[i], playerAttackRangeX, playerAttackRangeY, direction)) {
+                pigs.erase(pigs.begin() + i);
+            }
         }
-        // std::cout << "\n";
-        
-        // render(pigs[0]);
-        // pigs[0].updateLocation();
+
         
         // Falling
 
@@ -160,6 +166,18 @@ int main(int argc, char** argv)
         // else {
         //     pigs[0].setVelocityY(0);
         // }
+
+    // PLAYER
+
+        player.updateSprite();
+        if (player.attackCooldown()) {
+            player.setSize(37*3*2, 29*3*2);
+            player.setTexture(human_attack, 74, 58, 3);
+        }
+        else {
+            player.setSize(37*3, 29*3);
+            player.setTexture(human_idle, 37, 29, 11);
+        }
 
         if (!platformCollisionCheck(player, levelPlaform, 0, _MAIN_CHARACTER_GRAVITY_)) {
             player.move(0, _MAIN_CHARACTER_GRAVITY_);
@@ -175,19 +193,17 @@ int main(int argc, char** argv)
                     break;
                 case SDL_KEYDOWN:
                 {
-                    player.setTexture(human_run, 37, 29);
-                    // std::cerr << "Key pressed: " << event.key.keysym.sym << std::endl;
                     switch (event.key.keysym.sym) {
                         case SDLK_ESCAPE:
                             running = false;
                             break;
                         case SDLK_a:
-                            player.setStatus(_STATUS_WALK_LEFT_);
-                            player.move(-_MAIN_CHARACTER_VELOCITY_, 0);
+                            player.runLeft();
+                            player.setTexture(human_run, 37, 29, 8);
                             break;
                         case SDLK_d:
-                            player.setStatus(_STATUS_WALK_RIGHT_);
-                            player.move(_MAIN_CHARACTER_VELOCITY_, 0);
+                            player.runRight();
+                            player.setTexture(human_run, 37, 29, 8);
                             break;
                         case SDLK_w:
                             // if (!player.isFalling()) {
@@ -197,14 +213,34 @@ int main(int argc, char** argv)
                                 player.jump();
                             }
                             break;
-                        case SDLK_s:
-                            player.move(0, _MAIN_CHARACTER_VELOCITY_);
+                        case SDLK_SPACE:
+                            player.attack();
                             break;
-                    }                                                                                               
+                    }
+                    break;                                                                                             
+                }
+                case SDL_KEYUP:
+                {
+                        player.setTexture(human_idle, 37, 29, 11);
+                    break;
                 }
             }
         }
         //std::cout << "X: " << dest.x << " Y: " << dest.y << std::endl;
+
+
+    // RENDER
+
+        SDL_RenderClear(renderer);
+        renderBackground(background);
+        for (Pig pig : pigs) {
+            render(pig);
+        }
+        render(player);
+
+
+
+
         SDL_RenderPresent(renderer);
     }
     SDL_Quit();

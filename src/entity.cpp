@@ -14,7 +14,7 @@ const int _ANIMATION_PER_SECOND_ = 10;
 bool spriteDelayCheck();
 
 void Entity::init (SDL_Texture* p_texture, int p_numberOfFrame, int p_frame_width, int p_frame_height, int p_width, int p_height, int p_x, int p_y) {
-    setTexture(p_texture, p_frame_width, p_frame_height);
+    setTexture(p_texture, p_frame_width, p_frame_height, p_numberOfFrame);
     numberOfFrame = p_numberOfFrame;
     setFrame(0);
     setSize(p_width, p_height);
@@ -29,10 +29,11 @@ void Entity::init (SDL_Texture* p_texture, int p_numberOfFrame, int p_frame_widt
     }
 }
 
-void Entity::setTexture(SDL_Texture* p_texture, int p_frame_width, int p_frame_height) {
+void Entity::setTexture(SDL_Texture* p_texture, int p_frame_width, int p_frame_height, int p_numberOfFrame) {
     texture = p_texture;
     frame_width = p_frame_width;
     frame_height = p_frame_height;
+    numberOfFrame = p_numberOfFrame;
 }
 
 void Entity::setFrame(int p_frame) {
@@ -70,11 +71,15 @@ void Entity::setStatus(unsigned int p_status) {
         status = p_status;
     }
 }
-void Entity::turnLeft() {
+
+int _VELOCITY_ = 20;
+void Entity::runLeft() {
     setStatus(_STATUS_WALK_LEFT_);
+    move(-_VELOCITY_, 0);
 }
-void Entity::turnRight() {
+void Entity::runRight() {
     setStatus(_STATUS_WALK_RIGHT_);
+    move(_VELOCITY_, 0);
 }
 void Entity::setFallingState(bool state) {
     falling = state;
@@ -133,6 +138,23 @@ void Entity::updateSprite() {
 void Human::jump() {
     setFallingState(true);
     move(0, -300);
+}
+bool Human::attackCooldown() {
+    Uint32 cooldownTime = 200;//ms
+    Uint32 now = SDL_GetTicks();
+    if (now - lastTimeAttack < cooldownTime) return true;
+    return false;
+}
+void Human::attack(){
+    if (!attackCooldown()) {
+        lastTimeAttack = SDL_GetTicks();
+        move(0, -37*3);
+        std::cout << "Attack" << std::endl;
+    }
+    else {
+        std::cout << "Cooldown" << std::endl;
+    }
+    std::cout << lastTimeAttack << " " << SDL_GetTicks() << std::endl;
 }
 
 
