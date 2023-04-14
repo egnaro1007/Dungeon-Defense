@@ -9,6 +9,7 @@
 #include "../include/entity.hpp"
 // #include "../include/platform.hpp" // Đã bao gồm trong level.hpp
 #include "../include/level.hpp"
+#include "../include/text.hpp"
 
 #define _SCREEN_WIDTH_ 1920
 #define _SCREEN_HEIGHT_ 1080
@@ -38,6 +39,7 @@ Game::Game() {
         std::cout << "Init SDL failed: " << SDL_GetError() << "\n";
         SDL_Quit();
     }
+    TTF_Init();
     
     window = SDL_CreateWindow("Test window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, _SCREEN_WIDTH_, _SCREEN_HEIGHT_, SDL_WINDOW_SHOWN);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED /*|| SDL_RENDERER_PRESENTVSYNC*/);
@@ -98,7 +100,12 @@ int Game::gameStart(int argc, char** argv)
     Uint32 spawnTime = 0;
     Uint32 _SPAWN_TIME_MIN_= 150;//ms
     Uint32 _SPAWN_TIME_MAX_= 1500;//ms
-    
+
+
+    /*TEST ZONE*/
+    TextBox scoreTextBox("88", "font/slkscrb.ttf", 32, 255, 255, 255, 255, 960, 65);
+    /*TEST ZONE*/
+
 
     /* START GAME */
     
@@ -274,13 +281,14 @@ int Game::gameStart(int argc, char** argv)
         SDL_RenderClear(renderer);
         // Render background
         renderBackground(background);
+        
         // Render pigs
         for (unsigned int i = 0; i < numberOfPigs; i++) pigs[i].render(renderer);
             //render(pig);
         // Render player
         // render(player);
         player.render(renderer);
-
+scoreTextBox.render(renderer);
         SDL_RenderPresent(renderer);
     }
     return 0;
