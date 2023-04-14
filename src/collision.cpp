@@ -25,7 +25,12 @@ bool platformCollisionCheck(Entity &p_entity, std::vector<platform> &p_platform,
 
 
 bool attackCheck(Entity &p_attacker, Entity &p_opponent, int attackRangeX, int attackRangeY_BACKUPDONTUSE, int direction) {
-    if (direction == 3) // Attack left
+    // Don't attack vertically
+    if (p_attacker.getBottom() < p_opponent.getTop()) return false;
+    if (p_attacker.getTop() > p_opponent.getBottom()) return false;
+
+    // Attack left
+    if (direction == 3 || direction == 5) // _STATUS_WAKL_LEFT || _sTATUS_ATTACK_LEFT_
     {
         // Attack facing left
         // Attack perform when right of opponent is in range between left of attacker and left of attacker - attackRangeX
@@ -35,7 +40,9 @@ bool attackCheck(Entity &p_attacker, Entity &p_opponent, int attackRangeX, int a
             }
         return false;
     }
-    if (direction == 4) // Attack right
+
+    // Attack right
+    if (direction == 4 || direction == 6) // _STATUS_WALK_RIGHT || _STATUS_ATTACK_RIGHT_ 
     {
         // Attack facing right
         // Attack perform when left of opponent is in range between right of attacker and right of attacker + attackRangeX
@@ -45,5 +52,6 @@ bool attackCheck(Entity &p_attacker, Entity &p_opponent, int attackRangeX, int a
             }
         return false;
     }
+    
     return false;
 }

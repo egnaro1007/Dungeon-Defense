@@ -12,10 +12,13 @@
 #define _SCREEN_WIDTH_ 1920
 #define _SCREEN_HEIGHT_ 1080
 
-#define _STATUS_JUMP_ 1
-#define _STATUS_FALL_ 2
+#define _STATUS_PREVIOUS_ 0
+
+
 #define _STATUS_WALK_LEFT_ 3
 #define _STATUS_WALK_RIGHT_ 4
+#define _STATUS_ATTACK_LEFT_ 5
+#define _STATUS_ATTACK_RIGHT_ 6
 
 // Utils.cpp
 SDL_Texture* loadImage(SDL_Renderer* renderer, const char* file);
@@ -62,7 +65,7 @@ int main(int argc, char** argv)
     //Entity entities[3];
 
     Human player;
-    player.init(human_run, 8, 37, 29, 37*3, 29*3, 100, 100); 
+    player.init(human_idle, 8, 78, 58, 37*3, 29*3, 100, 100); 
 
     std::vector<Pig> pigs;
 
@@ -85,11 +88,11 @@ int main(int argc, char** argv)
     Uint32 _SPAWN_TIME_MAX_= 1500;//ms
     
 
-    // START GAME
+    /* START GAME */
     
 
     // Play music
-    // Mix_PlayMusic(music, -1);
+    Mix_PlayMusic(music, -1);
     // Declare running variable
     bool running = true;
     SDL_Event event;
@@ -131,7 +134,7 @@ int main(int argc, char** argv)
         unsigned int numberOfPigs = pigs.size();
         for (unsigned int i = 0; i < numberOfPigs; i++) {
             // Move pig
-
+            pigs[i].updateLocation();
             // Delete pig when it's out of screen
             if (pigs[i].getCurentFrame().y > 1080) pigs.erase(pigs.begin() + i); // pig.move(0, -950);
             // Check collision with platform to set falling state
@@ -141,7 +144,6 @@ int main(int argc, char** argv)
             else {
                 pigs[i].setFallingState(false);
             }
-            pigs[i].updateLocation();
 
 
             // Check collision with player's attack
@@ -169,14 +171,35 @@ int main(int argc, char** argv)
 
     // PLAYER
 
-        player.updateSprite();
+        // player.updateSprite();
         if (player.attackCooldown()) {
-            player.setSize(37*3*2, 29*3*2);
-            player.setTexture(human_attack, 74, 58, 3);
+        //     // player.setSize(37*3*2, 29*3*2);
+        // player.setTexture(human_attack, 78, 58, 3);
+        //     // SDL_Rect position = player.getCurentFrame();
+        //     // position.x -= 37*3;
+        //     // position.w *= 2;
+        //     // position.h *= 2;
+        //     // SDL_RenderCopy(renderer, human_attack, NULL, &position);
+            if (player.getStatus() == _STATUS_WALK_LEFT_) {
+                player.setStatus(_STATUS_ATTACK_LEFT_);
+                player.setTexture(human_attack, 78, 58, 3);
+            }
+            else if (player.getStatus() == _STATUS_WALK_RIGHT_) {
+                player.setStatus(_STATUS_ATTACK_RIGHT_);
+                player.setTexture(human_attack, 78, 58, 3);
+            }
         }
         else {
-            player.setSize(37*3, 29*3);
-            player.setTexture(human_idle, 37, 29, 11);
+        //     // player.setSize(37*3, 29*3);
+        // player.setTexture(human_idle, 78, 58, 11);
+            if (player.getStatus() == _STATUS_ATTACK_LEFT_) {
+                player.setStatus(_STATUS_WALK_LEFT_);
+                player.setTexture(human_idle, 78, 58, 3);
+            }
+            else if (player.getStatus() == _STATUS_ATTACK_RIGHT_) {
+                player.setStatus(_STATUS_WALK_RIGHT_);
+                player.setTexture(human_idle, 78, 58, 3);
+            }
         }
 
         if (!platformCollisionCheck(player, levelPlaform, 0, _MAIN_CHARACTER_GRAVITY_)) {
@@ -198,12 +221,14 @@ int main(int argc, char** argv)
                             running = false;
                             break;
                         case SDLK_a:
-                            player.runLeft();
-                            player.setTexture(human_run, 37, 29, 8);
+                            // player.runLeft();
+                            player.setStatus(_STATUS_WALK_LEFT_);
+                            player.move(-_MAIN_CHARACTER_VELOCITY_, 0);
+                            player.setTexture(human_run, 78, 58, 8);
                             break;
                         case SDLK_d:
                             player.runRight();
-                            player.setTexture(human_run, 37, 29, 8);
+                            player.setTexture(human_run, 78, 58, 8);
                             break;
                         case SDLK_w:
                             // if (!player.isFalling()) {
@@ -214,14 +239,16 @@ int main(int argc, char** argv)
                             }
                             break;
                         case SDLK_SPACE:
+                        if (event.key.repeat == 0){
                             player.attack();
                             break;
+                        }
                     }
                     break;                                                                                             
                 }
                 case SDL_KEYUP:
                 {
-                        player.setTexture(human_idle, 37, 29, 11);
+                    player.setTexture(human_idle, 78, 58, 11);
                     break;
                 }
             }
@@ -231,15 +258,16 @@ int main(int argc, char** argv)
 
     // RENDER
 
+        // Clear screen
         SDL_RenderClear(renderer);
+        // Render background
         renderBackground(background);
-        for (Pig pig : pigs) {
-            render(pig);
-        }
-        render(player);
-
-
-
+        // Render pigs
+        for (unsigned int i = 0; i < numberOfPigs; i++) pigs[i].render(renderer);
+            //render(pig);
+        // Render player
+        // render(player);
+        player.render(renderer);
 
         SDL_RenderPresent(renderer);
     }
@@ -253,7 +281,10 @@ void render(Entity &p_entity) {
     SDL_Rect src = p_entity.getSrc();
 
     SDL_Rect dest = p_entity.getCurentFrame();
-    
+    dest.x -= 9*3;
+    dest.y -= 15*3;
+    dest.w += 41*3;
+    dest.h += 29*3;
 
     SDL_RenderCopy(renderer, p_entity.getTexture(), &src, &dest);
 }

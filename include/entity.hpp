@@ -32,6 +32,7 @@ public:
 
     
     void updateSprite();
+    void render(SDL_Renderer* renderer);
 
     
     // lát nữa bỏ cái này xuống dưới

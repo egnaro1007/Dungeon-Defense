@@ -4,10 +4,12 @@
 #include <iostream>
 
 #define _STATUS_PREVIOUS_ 0
-#define _STATUS_JUMP_ 1
-#define _STATUS_FALL_ 2
+
+
 #define _STATUS_WALK_LEFT_ 3
 #define _STATUS_WALK_RIGHT_ 4
+#define _STATUS_ATTACK_LEFT_ 5
+#define _STATUS_ATTACK_RIGHT_ 6
 
 const int _ANIMATION_PER_SECOND_ = 10;
 
@@ -15,7 +17,6 @@ bool spriteDelayCheck();
 
 void Entity::init (SDL_Texture* p_texture, int p_numberOfFrame, int p_frame_width, int p_frame_height, int p_width, int p_height, int p_x, int p_y) {
     setTexture(p_texture, p_frame_width, p_frame_height, p_numberOfFrame);
-    numberOfFrame = p_numberOfFrame;
     setFrame(0);
     setSize(p_width, p_height);
     gotoXY(p_x, p_y);
@@ -40,8 +41,8 @@ void Entity::setFrame(int p_frame) {
     frame = p_frame;
     src.x = frame * frame_width;
     // src.y = 0;
-    if (status == _STATUS_WALK_LEFT_) src.y = frame_height * 0;
-    else if (status == _STATUS_WALK_RIGHT_) src.y = frame_height * 1;
+    if (status == _STATUS_WALK_LEFT_ || status == _STATUS_ATTACK_LEFT_) src.y = frame_height * 0;
+    else if (status == _STATUS_WALK_RIGHT_ || status == _STATUS_ATTACK_RIGHT_) src.y = frame_height * 1;
     else src.y = frame_height * 2;
     src.w = frame_width;
     src.h = frame_height;
@@ -72,7 +73,7 @@ void Entity::setStatus(unsigned int p_status) {
     }
 }
 
-int _VELOCITY_ = 20;
+int _VELOCITY_ = 10;
 void Entity::runLeft() {
     setStatus(_STATUS_WALK_LEFT_);
     move(-_VELOCITY_, 0);
@@ -133,6 +134,20 @@ void Entity::updateSprite() {
     lastTimeSprite = now;
 }
 
+void Entity::render(SDL_Renderer* renderer) {
+    updateSprite();
+
+    SDL_Rect src = getSrc();
+
+    SDL_Rect dest = getCurentFrame();
+    dest.x -= 9*3;
+    dest.y -= 15*3;
+    dest.w += 41*3;
+    dest.h += 29*3;
+
+    SDL_RenderCopy(renderer, getTexture(), &src, &dest);
+}
+
 
 
 void Human::jump() {
@@ -148,18 +163,17 @@ bool Human::attackCooldown() {
 void Human::attack(){
     if (!attackCooldown()) {
         lastTimeAttack = SDL_GetTicks();
-        move(0, -37*3);
-        std::cout << "Attack" << std::endl;
+        // std::cout << "Attack" << std::endl;
     }
     else {
-        std::cout << "Cooldown" << std::endl;
+        // std::cout << "Cooldown" << std::endl;
     }
-    std::cout << lastTimeAttack << " " << SDL_GetTicks() << std::endl;
+    // std::cout << lastTimeAttack << " " << SDL_GetTicks() << std::endl;
 }
 
 
 void Pig::updateLocation() {
-    updateSprite();
+    // updateSprite();
     if (!isFalling()) {
         switch (getStatus()){
         case _STATUS_WALK_RIGHT_: 
