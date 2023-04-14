@@ -3,13 +3,13 @@
 
 #include <iostream>
 
-#define _STATUS_PREVIOUS_ 0
-
-
-#define _STATUS_WALK_LEFT_ 3
-#define _STATUS_WALK_RIGHT_ 4
-#define _STATUS_ATTACK_LEFT_ 5
-#define _STATUS_ATTACK_RIGHT_ 6
+enum _STATUS_ {
+    _STATUS_PREVIOUS_ = 0,
+    _STATUS_WALK_LEFT_ = 3,
+    _STATUS_WALK_RIGHT_ = 4,
+    _STATUS_ATTACK_LEFT_ = 5,
+    _STATUS_ATTACK_RIGHT_ = 6
+};
 
 const int _ANIMATION_PER_SECOND_ = 10;
 

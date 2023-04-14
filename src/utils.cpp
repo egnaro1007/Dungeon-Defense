@@ -1,13 +1,12 @@
 #include <iostream>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include "../include/game.h"
 
 const int _FPS_ = 240;
 const int _ANIMATION_PER_SECOND_ = 10;
 const int _MAIN_CHARACTER_VELOCITY_ = 20; // pixel per second
 
-// Load texture from image file
-SDL_Texture* loadImage(const char* file);
 // Lock FPS
 void frameDelayy();
 // Delay between sprite animation
