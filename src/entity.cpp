@@ -134,16 +134,16 @@ void Entity::updateSprite() {
     lastTimeSprite = now;
 }
 
-void Entity::render(SDL_Renderer* renderer) {
+void Entity::render(SDL_Renderer* renderer, int topCalibration, int bottomCalibration, int leftCalibration, int rightCalibration) {
     updateSprite();
 
     SDL_Rect src = getSrc();
 
     SDL_Rect dest = getCurentFrame();
-    dest.x -= 9*3;
-    dest.y -= 15*3;
-    dest.w += 41*3;
-    dest.h += 29*3;
+    dest.x -= leftCalibration;
+    dest.y -= topCalibration;
+    dest.w += leftCalibration + rightCalibration;
+    dest.h += topCalibration + bottomCalibration;
 
     SDL_RenderCopy(renderer, getTexture(), &src, &dest);
 }
@@ -161,14 +161,29 @@ bool Human::attackCooldown() {
     return false;
 }
 void Human::attack(){
-    if (!attackCooldown()) {
-        lastTimeAttack = SDL_GetTicks();
-        // std::cout << "Attack" << std::endl;
-    }
-    else {
-        // std::cout << "Cooldown" << std::endl;
-    }
-    // std::cout << lastTimeAttack << " " << SDL_GetTicks() << std::endl;
+    if (attackCooldown()) return;
+    lastTimeAttack = SDL_GetTicks();
+}
+void Human::scoreUp() {
+    score++;
+}
+unsigned int Human::getScore() {
+    return score;
+}
+void Human::hurt() {
+    if (hurtCooldown()) return;
+    lastTimeHurt = SDL_GetTicks();
+    hp--;
+    std::cout << "Ouch!" << std::endl;
+}
+unsigned int Human::getHp() {
+    return hp;
+}
+bool Human::hurtCooldown() {
+    Uint32 cooldownTime = 1500;//ms
+    Uint32 now = SDL_GetTicks();
+    if (now - lastTimeHurt < cooldownTime) return true;
+    return false;
 }
 
 

@@ -4,12 +4,14 @@
 #include <SDL2/SDL_mixer.h>
 #include <iostream>
 #include <vector>
+#include <string>
 #include <ctime>
 //#include "../include/define.h"
 #include "../include/entity.hpp"
 // #include "../include/platform.hpp" // Đã bao gồm trong level.hpp
 #include "../include/level.hpp"
 #include "../include/text.hpp"
+#include "../include/bar.hpp"
 
 #define _SCREEN_WIDTH_ 1920
 #define _SCREEN_HEIGHT_ 1080
@@ -29,6 +31,7 @@ bool spriteDelayCheck();
 
 // void renderEverything(Entity entity[]);
 // bool collisionCheck(Entity &p_entity, platform &p_platform, int &nextMoveDistanceX, int &nextMoveDistanceY);
+bool collisionCheckEtoE(Entity &p_entity1, Entity &p_entity2);
 bool platformCollisionCheck(Entity &p_entity, std::vector<platform> &p_platform, int nextMoveDistanceX, int nextMoveDistanceY);
 bool attackCheck(Entity &p_attacker, Entity &p_opponent, int attackRangeX, int attackRangeY, int direction);
 
@@ -71,6 +74,7 @@ int Game::gameStart(int argc, char** argv)
     SDL_Texture* human_idle = loadImage(renderer, "assets/human/idle.png");
     SDL_Texture* human_attack = loadImage(renderer, "assets/human/attack.png");
     SDL_Texture* pig_run = loadImage(renderer, "assets/pig/run.png");
+    SDL_Texture* heart = loadImage(renderer, "assets/status/heart.png");
 
     // Load level's platform
     std::vector<platform> levelPlaform = loadLevel("level.dat");
@@ -79,7 +83,7 @@ int Game::gameStart(int argc, char** argv)
     //Entity entities[3];
 
     Human player;
-    player.init(human_idle, 8, 78, 58, 37*3, 29*3, 100, 100); 
+    player.init(human_idle, 8, 78, 58, 37*3, 29*3, 960, 100); 
 
     std::vector<Pig> pigs;
 
@@ -103,15 +107,20 @@ int Game::gameStart(int argc, char** argv)
 
 
     /*TEST ZONE*/
-    TextBox scoreTextBox("88", "font/slkscrb.ttf", 32, 255, 255, 255, 255, 960, 65);
+    TextBox scoreTextBox("0", "font/slkscrb.ttf", 32, 255, 255, 255, 255, 960, 65);
+    bar healthBar(1150, 1010 , heart, 18, 14, 4, 10);
+    
     /*TEST ZONE*/
 
 
     /* START GAME */
     
 
+    // Declare variables health
+    int health = 10;
+    healthBar.setValue(health);
     // Play music
-    Mix_PlayMusic(music, -1);
+// Mix_PlayMusic(music, -1);
     // Declare running variable
     bool running = true;
     SDL_Event event;
@@ -142,8 +151,8 @@ int Game::gameStart(int argc, char** argv)
             // After spawnTime ms
             // Spawn a new pig
             Pig newPig;
-            if (rand() % 2 == 0) newPig.init(pig_run, 6, 19, 22, 19*4, 22*4, 100, 100);
-            else newPig.init(pig_run, 6, 19, 22, 19*4, 22*4, 1820, 100);
+            if (rand() % 2 == 0) newPig.init(pig_run, 6, 38, 28, 19*4, 22*4, 100, 100);
+            else newPig.init(pig_run, 6, 38, 28, 19*4, 22*4, 1820, 100);
             pigs.push_back(newPig);
             // Reset timer
             lastTimeSpawn = now;
@@ -155,13 +164,21 @@ int Game::gameStart(int argc, char** argv)
             // Move pig
             pigs[i].updateLocation();
             // Delete pig when it's out of screen
-            if (pigs[i].getCurentFrame().y > 1080) pigs.erase(pigs.begin() + i); // pig.move(0, -950);
+            if (pigs[i].getCurentFrame().y > 1080) {
+                pigs.erase(pigs.begin() + i);
+                health--;
+            }
             // Check collision with platform to set falling state
             if (!platformCollisionCheck(pigs[i], levelPlaform, 0, _MAIN_CHARACTER_GRAVITY_)) {
                 pigs[i].setFallingState(true);
             }
             else {
                 pigs[i].setFallingState(false);
+            }
+
+            // Check collision with player
+            if (collisionCheckEtoE(player, pigs[i])) {
+                player.hurt();
             }
 
 
@@ -171,34 +188,15 @@ int Game::gameStart(int argc, char** argv)
             int direction = player.getStatus();
             if (!player.isFalling() && player.attackCooldown() && attackCheck(player, pigs[i], playerAttackRangeX, playerAttackRangeY, direction)) {
                 pigs.erase(pigs.begin() + i);
+                player.scoreUp();
             }
         }
 
-        
-        // Falling
-
-        // if (!platformCollisionCheck(pigs[0], levelPlaform, 0, _MAIN_CHARACTER_GRAVITY_)) {
-        //     pigs[0].move(0, _MAIN_CHARACTER_GRAVITY_);
-        //     pigs[0].setFallingState(true);
-        // }
-        // else {
-        //     pigs[0].setFallingState(false);
-        // }
-        // else {
-        //     pigs[0].setVelocityY(0);
-        // }
 
     // PLAYER
 
         // player.updateSprite();
         if (player.attackCooldown()) {
-        //     // player.setSize(37*3*2, 29*3*2);
-        // player.setTexture(human_attack, 78, 58, 3);
-        //     // SDL_Rect position = player.getCurentFrame();
-        //     // position.x -= 37*3;
-        //     // position.w *= 2;
-        //     // position.h *= 2;
-        //     // SDL_RenderCopy(renderer, human_attack, NULL, &position);
             if (player.getStatus() == _STATUS_WALK_LEFT_) {
                 player.setStatus(_STATUS_ATTACK_LEFT_);
                 player.setTexture(human_attack, 78, 58, 3);
@@ -209,8 +207,6 @@ int Game::gameStart(int argc, char** argv)
             }
         }
         else {
-        //     // player.setSize(37*3, 29*3);
-        // player.setTexture(human_idle, 78, 58, 11);
             if (player.getStatus() == _STATUS_ATTACK_LEFT_) {
                 player.setStatus(_STATUS_WALK_LEFT_);
                 player.setTexture(human_idle, 78, 58, 3);
@@ -258,21 +254,29 @@ int Game::gameStart(int argc, char** argv)
                             }
                             break;
                         case SDLK_SPACE:
-                        if (event.key.repeat == 0){
-                            player.attack();
+                            if (event.key.repeat == 0){
+                                player.attack();
+                            }
                             break;
-                        }
                     }
                     break;                                                                                             
                 }
-                case SDL_KEYUP:
-                {
-                    player.setTexture(human_idle, 78, 58, 11);
-                    break;
-                }
+                // case SDL_KEYUP:
+                // {
+                //     player.setTexture(human_idle, 78, 58, 11);
+                //     break;
+                // }
             }
         }
         //std::cout << "X: " << dest.x << " Y: " << dest.y << std::endl;
+
+
+    // UI UPDATE
+
+        // Score
+        scoreTextBox.setText(std::to_string(player.getScore()));
+        // Health bar
+        healthBar.setValue(health);
 
 
     // RENDER
@@ -281,15 +285,26 @@ int Game::gameStart(int argc, char** argv)
         SDL_RenderClear(renderer);
         // Render background
         renderBackground(background);
-        
+        // Render score textbox
+        scoreTextBox.render(renderer);
+        // Render health bar
+        healthBar.render(renderer);
         // Render pigs
-        for (unsigned int i = 0; i < numberOfPigs; i++) pigs[i].render(renderer);
+        for (unsigned int i = 0; i < numberOfPigs; i++) pigs[i].render(renderer, 6*4, 0, 10*4, 9*4);
             //render(pig);
         // Render player
         // render(player);
-        player.render(renderer);
-scoreTextBox.render(renderer);
+        player.render(renderer, 15*3, 14*3, 9*3, 32*3);
+
         SDL_RenderPresent(renderer);
+
+        // std::cout << player.getHp() << std::endl;
+        if (player.getHp() <= 0) {
+            running = false;
+        }
+        if (health <= 0) {
+            running = false;
+        }
     }
     return 0;
 }

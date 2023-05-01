@@ -34,7 +34,7 @@ public:
 
     
     void updateSprite();
-    void render(SDL_Renderer* renderer);
+    void render(SDL_Renderer* renderer, int topCalibration, int bottomCalibration, int leftCalibration, int rightCalibration);
 
     
     // lát nữa bỏ cái này xuống dưới
@@ -68,8 +68,18 @@ public:
     void attack();
     bool attackCooldown();
     void update();
+
+    void scoreUp();
+    unsigned int getScore();
+
+    void hurt();
+    bool hurtCooldown();
+    unsigned int getHp();
 private:
+    unsigned int score = 0;
+    unsigned int hp = 3;
     Uint32 lastTimeAttack = 0;
+    Uint32 lastTimeHurt = 0;
 };
 
 

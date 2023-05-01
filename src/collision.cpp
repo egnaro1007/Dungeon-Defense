@@ -4,6 +4,16 @@
 
 #include <vector>
 
+bool collisionCheckEtoE(Entity &p_entity1, Entity &p_entity2) {
+    if (p_entity1.getBottom() > p_entity2.getTop() &&
+        p_entity1.getTop() < p_entity2.getBottom() &&
+        p_entity1.getRight() > p_entity2.getLeft() &&
+        p_entity1.getLeft() < p_entity2.getRight()) {
+            return true;
+        }
+    return false;
+}
+
 bool collisionCheckEtoP(Entity &p_entity, platform &p_platform, int nextMoveDistanceX, int nextMoveDistanceY) {
     if (p_entity.getBottom() + nextMoveDistanceY > p_platform.top &&
         p_entity.getTop() - nextMoveDistanceY < p_platform.bottom &&
