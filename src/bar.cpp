@@ -32,8 +32,10 @@ void bar::render(SDL_Renderer* renderer) {
     }
 }
 
-void bar::setValue(unsigned int p_value) {
-    value = p_value;
+void bar::setValue(int p_value) {
+    if (p_value <= 0) value = 0;
+    else if (p_value >= maxValue) value = maxValue;
+    else value = p_value;
 }
 
 unsigned int bar::getValue() {
