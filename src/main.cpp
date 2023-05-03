@@ -8,7 +8,11 @@ int main(int argc, char** argv)
     Game* game = new Game();
     while (running) {
         // Run game
-        unsigned int exitCode = game->gameStart(argc, argv);
+        if (game->startMenu(argc, argv) == 1) {
+            running = false;
+            break;
+        } 
+        int exitCode = game->gameStart(argc, argv);
 
         // Return exit code
         std::cout << "Exit code: " << exitCode << '\n';

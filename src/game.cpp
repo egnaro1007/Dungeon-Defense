@@ -46,6 +46,7 @@ Game::Game() {
     
     window = SDL_CreateWindow("Test window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, _SCREEN_WIDTH_, _SCREEN_HEIGHT_, SDL_WINDOW_SHOWN);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED /*|| SDL_RENDERER_PRESENTVSYNC*/);
+    
 }
 
 Game::~Game() {
@@ -62,11 +63,10 @@ int Game::gameStart(int argc, char** argv)
     if (window == NULL) return 2;
     if (renderer == NULL) return 3;
     
-// Init SDL here
-
-    Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024);
+    SDL_RenderClear(renderer);
     
     // Load music
+    Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024);
     Mix_Music* music = Mix_LoadMUS("assets/background.mp3");
     // Load texture
     SDL_Texture* background = loadImage(renderer, "assets/background.png");
@@ -109,7 +109,6 @@ int Game::gameStart(int argc, char** argv)
     /*TEST ZONE*/
     TextBox scoreTextBox("0", "font/slkscrb.ttf", 32, 255, 255, 255, 255, 960, 65);
     bar healthBar(1150, 1010 , heart, 18, 14, 4, 10);
-    
     /*TEST ZONE*/
 
 
@@ -120,7 +119,7 @@ int Game::gameStart(int argc, char** argv)
     int health = 10;
     healthBar.setValue(health);
     // Play music
-// Mix_PlayMusic(music, -1);
+    Mix_PlayMusic(music, -1);
     // Declare running variable
     bool running = true;
     SDL_Event event;
@@ -128,6 +127,10 @@ int Game::gameStart(int argc, char** argv)
     // Main loop
     while (running) 
     {
+        // Music
+        if (bgm) Mix_ResumeMusic();
+        else Mix_PauseMusic();
+
         // frameDelayy();
         // Mix_ResumeMusic();
 
@@ -308,6 +311,111 @@ int Game::gameStart(int argc, char** argv)
     }
     return 0;
 }
+
+int Game::startMenu(int argc, char** argv) 
+{
+    if (window == NULL) return 2;
+    if (renderer == NULL) return 3;
+
+    SDL_RenderClear(renderer);
+
+    Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024);
+    Mix_Music* music = Mix_LoadMUS("assets/background.mp3");
+
+    SDL_Texture* menuBackground = loadImage(renderer, "assets/menu/background.png");
+    SDL_Texture* menu = loadImage(renderer, "assets/menu/menu.png");
+    SDL_Texture* arrow = loadImage(renderer, "assets/menu/arrow.png");
+    SDL_Texture* instruction = loadImage(renderer, "assets/menu/instruction.png");
+
+    int selectedOption = 1;
+    // 1: start game
+    // 2: instructions
+    // 3: highscore
+    // 4: exit
+    const int numberOfOptions = 4;
+    // selectedOption from 1 to [numberOfOptions]0
+    
+    Mix_PlayMusic(music, -1);
+    bool running = true;
+    bool selected = false;
+    SDL_Event event;
+    while (running) {
+        if (bgm) Mix_ResumeMusic();
+        else Mix_PauseMusic();
+        SDL_PollEvent(&event);
+            switch (event.type) {
+                case SDL_QUIT:
+                    return 1;
+                case SDL_KEYDOWN:
+                {
+                    switch (event.key.keysym.sym) {
+                        case SDLK_a:
+                            bgm =  !bgm;
+                            break;
+                        case SDLK_w:
+                            if (selectedOption > 1) {
+                                selectedOption--;
+                            }
+                            break;
+                        case SDLK_s:
+                            if (selectedOption < numberOfOptions) {
+                                selectedOption++;
+                            }
+                            break;
+                        case SDLK_SPACE:
+                            selected = true;
+                            break;
+                        case SDLK_ESCAPE:
+                            if (selected == false) return 1;
+                            if (selected == true) selected = false;
+                            break;
+                            
+                    }    
+                    std::cout << bgm << std::endl;                                                                                       
+                }
+            }
+        
+
+        SDL_RenderClear(renderer);
+        renderBackground(menuBackground);
+        
+        if (selected) {
+            switch (selectedOption) {
+                case 1:
+                    running = false;
+                    break;
+                case 2:
+                    renderBackground(instruction);
+                    break;
+                case 3:
+                    std::cout << "Funtion in development" << std::endl;
+                    selected = false;
+                    break;
+                case 4:
+                    return 1;
+            }
+        }
+        else {
+            renderBackground(menu);
+            SDL_Rect arrowDest = { 935, 375, 58, 43 };
+            switch (selectedOption) {
+                case 1:
+                    arrowDest.y = 375;
+                    break;
+                case 2 ... 4:
+                    arrowDest.y = 375 + 115 + 94*(selectedOption-2);
+                    break;
+            }
+            SDL_RenderCopy(renderer, arrow, NULL, &arrowDest);
+        }
+        
+        SDL_RenderPresent(renderer);
+    }
+    return 0;
+}
+
+
+
 
 // void Game::render(Entity &p_entity) {
 //     SDL_Rect src = p_entity.getSrc();

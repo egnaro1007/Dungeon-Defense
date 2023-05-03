@@ -162,6 +162,7 @@ bool Human::attackCooldown() {
 }
 void Human::attack(){
     if (attackCooldown()) return;
+    if (hurtCooldown()) return;
     lastTimeAttack = SDL_GetTicks();
 }
 void Human::scoreUp() {
@@ -180,7 +181,7 @@ unsigned int Human::getHp() {
     return hp;
 }
 bool Human::hurtCooldown() {
-    Uint32 cooldownTime = 1500;//ms
+    Uint32 cooldownTime = 1000;//ms
     Uint32 now = SDL_GetTicks();
     if (now - lastTimeHurt < cooldownTime) return true;
     return false;
