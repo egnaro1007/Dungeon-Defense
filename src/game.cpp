@@ -45,7 +45,7 @@ Game::Game() {
     }
     TTF_Init();
     
-    window = SDL_CreateWindow("Test window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, _SCREEN_WIDTH_, _SCREEN_HEIGHT_, SDL_WINDOW_SHOWN);
+    window = SDL_CreateWindow("Dungeon Defense", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, _SCREEN_WIDTH_, _SCREEN_HEIGHT_, SDL_WINDOW_SHOWN);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED /*|| SDL_RENDERER_PRESENTVSYNC*/);
     
 }
@@ -76,6 +76,7 @@ int Game::gameStart(int argc, char** argv)
     SDL_Texture* human_attack = loadImage(renderer, "assets/human/attack.png");
     SDL_Texture* pig_run = loadImage(renderer, "assets/pig/run.png");
     SDL_Texture* heart = loadImage(renderer, "assets/status/heart.png");
+    SDL_Texture* door = loadImage(renderer, "assets/status/door.png");
 
     // Load level's platform
     std::vector<platform> levelPlaform = loadLevel("level.dat");
@@ -106,10 +107,13 @@ int Game::gameStart(int argc, char** argv)
     Uint32 _SPAWN_TIME_MIN_= 150;//ms
     Uint32 _SPAWN_TIME_MAX_= 1500;//ms
 
+    // UI
+    TextBox scoreTextBox("0", "font/slkscrb.ttf", 32, 255, 255, 255, 255, 960, 65);
+    bar home(1150, 1010 , door, 48, 56, 1, 10);
+    bar healthBar(550, 1010 , heart, 18, 14, 4, 3);
+    
 
     /*TEST ZONE*/
-    TextBox scoreTextBox("0", "font/slkscrb.ttf", 32, 255, 255, 255, 255, 960, 65);
-    bar healthBar(1150, 1010 , heart, 18, 14, 4, 10);
     /*TEST ZONE*/
 
 
@@ -118,7 +122,7 @@ int Game::gameStart(int argc, char** argv)
 
     // Declare variables health
     int health = 10;
-    healthBar.setValue(health);
+    home.setValue(health);
     // Play music
     Mix_PlayMusic(music, -1);
     // Declare running variable
@@ -281,7 +285,9 @@ int Game::gameStart(int argc, char** argv)
         // Score
         scoreTextBox.setText(std::to_string(player.getScore()));
         // Health bar
-        healthBar.setValue(health);
+        home.setValue(health);
+        // Player's hp
+        healthBar.setValue(player.getHp());
 
 
     // RENDER
@@ -292,7 +298,8 @@ int Game::gameStart(int argc, char** argv)
         renderBackground(background);
         // Render score textbox
         scoreTextBox.render(renderer);
-        // Render health bar
+        // Render UI
+        home.render(renderer);
         healthBar.render(renderer);
         // Render pigs
         for (unsigned int i = 0; i < numberOfPigs; i++) pigs[i].render(renderer, 6*4, 0, 10*4, 9*4);
@@ -303,7 +310,8 @@ int Game::gameStart(int argc, char** argv)
 
         SDL_RenderPresent(renderer);
 
-        // std::cout << player.getHp() << std::endl;
+        
+        // Check game over
         if (player.getHp() <= 0) {
             running = false;
         }
@@ -370,8 +378,7 @@ int Game::startMenu(int argc, char** argv)
                             if (selected == true) selected = false;
                             break;
                             
-                    }    
-                    std::cout << bgm << std::endl;                                                                                       
+                    }                                                                                        
                 }
             }
         
@@ -425,11 +432,11 @@ int Game::gameOver(int argc, char** argv)
     SDL_Texture* menuBackground = loadImage(renderer, "assets/menu/background.png");
     SDL_Texture* gameOver = loadImage(renderer, "assets/menu/gameover.png");
     // Load highscore
-    std::fstream highscoreFile;
-    highscoreFile.open("high.score", std::ios::in);
+    std::ifstream getHighscoreFile;
+    getHighscoreFile.open("high.score", std::ios::in);
     int highscore;
-    highscoreFile >> highscore;
-    highscoreFile.close();
+    getHighscoreFile >> highscore;
+    getHighscoreFile.close();
     // Init textbox
     TextBox titleTextBox("", "font/slkscre.ttf", 48, 255, 255, 255, 255, 960, 347);
     TextBox scoreTextBox("", "font/slkscre.ttf", 64, 0, 0, 0, 255, 1133, 530);
@@ -437,9 +444,10 @@ int Game::gameOver(int argc, char** argv)
     // Update textbox
     if (gameScore > highscore) {
         titleTextBox.setText("NEW HIGHSCORE !!!");
-        highscoreFile.open("high.score", std::ios::trunc);
-        highscoreFile << gameScore;
-        highscoreFile.close();
+        std::ofstream writeHighscoreFile;
+        writeHighscoreFile.open("high.score", std::ios::trunc);
+        writeHighscoreFile << gameScore;
+        writeHighscoreFile.close();
     }
     else {
         titleTextBox.setText("GAME OVER"); 
@@ -478,18 +486,6 @@ int Game::gameOver(int argc, char** argv)
 void Game::returnGameScore(int p_score) {
     gameScore = p_score;
 }
-
-// void Game::render(Entity &p_entity) {
-//     SDL_Rect src = p_entity.getSrc();
-
-//     SDL_Rect dest = p_entity.getCurentFrame();
-//     dest.x -= 9*3;
-//     dest.y -= 15*3;
-//     dest.w += 41*3;
-//     dest.h += 29*3;
-
-//     SDL_RenderCopy(renderer, p_entity.getTexture(), &src, &dest);
-// }
 
 void Game::renderBackground(SDL_Texture* p_texture) {
     SDL_Rect src;
