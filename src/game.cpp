@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 #include <ctime>
+#include <fstream>
 //#include "../include/define.h"
 #include "../include/entity.hpp"
 // #include "../include/platform.hpp" // Đã bao gồm trong level.hpp
@@ -62,7 +63,7 @@ int Game::gameStart(int argc, char** argv)
 {
     if (window == NULL) return 2;
     if (renderer == NULL) return 3;
-    
+
     SDL_RenderClear(renderer);
     
     // Load music
@@ -264,11 +265,12 @@ int Game::gameStart(int argc, char** argv)
                     }
                     break;                                                                                             
                 }
-                // case SDL_KEYUP:
-                // {
-                //     player.setTexture(human_idle, 78, 58, 11);
-                //     break;
-                // }
+                case SDL_KEYUP:
+                {
+                    if (event.key.keysym.sym == SDLK_a || event.key.keysym.sym == SDLK_d) {
+                        player.setTexture(human_idle, 78, 58, 3);
+                    }
+                }
             }
         }
         //std::cout << "X: " << dest.x << " Y: " << dest.y << std::endl;
@@ -309,18 +311,16 @@ int Game::gameStart(int argc, char** argv)
             running = false;
         }
     }
+    returnGameScore(player.getScore());
     return 0;
 }
 
 int Game::startMenu(int argc, char** argv) 
 {
-    if (window == NULL) return 2;
-    if (renderer == NULL) return 3;
-
     SDL_RenderClear(renderer);
 
     Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024);
-    Mix_Music* music = Mix_LoadMUS("assets/background.mp3");
+    Mix_Music* music = Mix_LoadMUS("assets/background2.mp3");
 
     SDL_Texture* menuBackground = loadImage(renderer, "assets/menu/background.png");
     SDL_Texture* menu = loadImage(renderer, "assets/menu/menu.png");
@@ -415,7 +415,69 @@ int Game::startMenu(int argc, char** argv)
 }
 
 
+int Game::gameOver(int argc, char** argv)
+{
+    SDL_RenderClear(renderer);
+    // Load music
+    Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024);
+    // Load texture
+    Mix_Music* music = Mix_LoadMUS("assets/background2.mp3");
+    SDL_Texture* menuBackground = loadImage(renderer, "assets/menu/background.png");
+    SDL_Texture* gameOver = loadImage(renderer, "assets/menu/gameover.png");
+    // Load highscore
+    std::fstream highscoreFile;
+    highscoreFile.open("high.score", std::ios::in);
+    int highscore;
+    highscoreFile >> highscore;
+    highscoreFile.close();
+    // Init textbox
+    TextBox titleTextBox("", "font/slkscre.ttf", 48, 255, 255, 255, 255, 960, 347);
+    TextBox scoreTextBox("", "font/slkscre.ttf", 64, 0, 0, 0, 255, 1133, 530);
+    
+    // Update textbox
+    if (gameScore > highscore) {
+        titleTextBox.setText("NEW HIGHSCORE !!!");
+        highscoreFile.open("high.score", std::ios::trunc);
+        highscoreFile << gameScore;
+        highscoreFile.close();
+    }
+    else {
+        titleTextBox.setText("GAME OVER"); 
+    }
+    scoreTextBox.setText(std::to_string(gameScore));
 
+    Mix_PlayMusic(music, -1);
+    bool running = true;
+    SDL_Event event;
+    while (running)
+    {
+        SDL_PollEvent(&event);
+        switch (event.type) {
+            case SDL_QUIT:
+                return 1;
+            case SDL_KEYDOWN:
+            {
+                switch (event.key.keysym.sym) {
+                    case SDLK_ESCAPE:
+                        return 0;
+                }
+            }
+        }
+        
+        SDL_RenderClear(renderer);
+        renderBackground(menuBackground);
+        renderBackground(gameOver);
+        titleTextBox.render(renderer);
+        scoreTextBox.render(renderer);
+        SDL_RenderPresent(renderer);
+    }
+    return 0;
+}
+
+
+void Game::returnGameScore(int p_score) {
+    gameScore = p_score;
+}
 
 // void Game::render(Entity &p_entity) {
 //     SDL_Rect src = p_entity.getSrc();
