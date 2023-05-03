@@ -326,14 +326,21 @@ int Game::gameStart(int argc, char** argv)
 int Game::startMenu(int argc, char** argv) 
 {
     SDL_RenderClear(renderer);
-
+    // Load music
     Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024);
     Mix_Music* music = Mix_LoadMUS("assets/background2.mp3");
-
+    // Load texture
     SDL_Texture* menuBackground = loadImage(renderer, "assets/menu/background.png");
     SDL_Texture* menu = loadImage(renderer, "assets/menu/menu.png");
     SDL_Texture* arrow = loadImage(renderer, "assets/menu/arrow.png");
     SDL_Texture* instruction = loadImage(renderer, "assets/menu/instruction.png");
+    // Load highscore
+    std::ifstream getHighscoreFile;
+    getHighscoreFile.open("high.score", std::ios::in);
+    int highscore;
+    getHighscoreFile >> highscore;
+    getHighscoreFile.close();
+    TextBox highscoreTextBox(std::to_string(highscore), "font/slkscrb.ttf", 72, 255, 255, 255, 255, 830, 695);
 
     int selectedOption = 1;
     // 1: start game
@@ -341,7 +348,7 @@ int Game::startMenu(int argc, char** argv)
     // 3: highscore
     // 4: exit
     const int numberOfOptions = 4;
-    // selectedOption from 1 to [numberOfOptions]0
+    // selectedOption from 1 to [numberOfOptions]
     
     Mix_PlayMusic(music, -1);
     bool running = true;
@@ -415,6 +422,7 @@ int Game::startMenu(int argc, char** argv)
             }
             SDL_RenderCopy(renderer, arrow, NULL, &arrowDest);
         }
+        highscoreTextBox.render(renderer);
         
         SDL_RenderPresent(renderer);
     }
