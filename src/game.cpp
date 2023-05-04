@@ -329,6 +329,10 @@ int Game::startMenu(int argc, char** argv)
     // Load music
     Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024);
     Mix_Music* music = Mix_LoadMUS("assets/background2.mp3");
+    // Audio button
+    SDL_Texture* audioButton = loadImage(renderer, "assets/menu/audio.png");
+    SDL_Rect audioButtonSrc = {0, 0, 500, 500};
+    SDL_Rect audioButtonDest = {650, 730, 36, 36};
     // Load texture
     SDL_Texture* menuBackground = loadImage(renderer, "assets/menu/background.png");
     SDL_Texture* menu = loadImage(renderer, "assets/menu/menu.png");
@@ -355,8 +359,14 @@ int Game::startMenu(int argc, char** argv)
     bool selected = false;
     SDL_Event event;
     while (running) {
-        if (bgm) Mix_ResumeMusic();
-        else Mix_PauseMusic();
+        if (bgm) {
+            audioButtonSrc.x = 0;
+            Mix_ResumeMusic();
+        }
+        else {
+            audioButtonSrc.x = 500;
+            Mix_PauseMusic();
+        }
         SDL_PollEvent(&event);
             switch (event.type) {
                 case SDL_QUIT:
@@ -422,8 +432,11 @@ int Game::startMenu(int argc, char** argv)
             }
             SDL_RenderCopy(renderer, arrow, NULL, &arrowDest);
         }
-        highscoreTextBox.render(renderer);
-        
+        if (!selected) {
+            highscoreTextBox.render(renderer);
+            SDL_RenderCopy(renderer, audioButton, &audioButtonSrc, &audioButtonDest);
+        }
+
         SDL_RenderPresent(renderer);
     }
     return 0;
