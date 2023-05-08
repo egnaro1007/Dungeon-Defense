@@ -46,7 +46,7 @@ Game::Game() {
     TTF_Init();
     
     window = SDL_CreateWindow("Dungeon Defense", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, _SCREEN_WIDTH_, _SCREEN_HEIGHT_, SDL_WINDOW_SHOWN);
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED /*|| SDL_RENDERER_PRESENTVSYNC*/);
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED || SDL_RENDERER_PRESENTVSYNC);
     
 }
 
@@ -244,9 +244,7 @@ int Game::gameStart(int argc, char** argv)
                             running = false;
                             break;
                         case SDLK_a:
-                            // player.runLeft();
-                            player.setStatus(_STATUS_WALK_LEFT_);
-                            player.move(-_MAIN_CHARACTER_VELOCITY_, 0);
+                            player.runLeft();
                             player.setTexture(human_run, 78, 58, 8);
                             break;
                         case SDLK_d:
@@ -267,6 +265,7 @@ int Game::gameStart(int argc, char** argv)
                             }
                             break;
                     }
+                    SDL_RenderPresent(renderer);
                     break;                                                                                             
                 }
                 case SDL_KEYUP:

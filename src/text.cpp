@@ -14,14 +14,18 @@ TextBox::TextBox(std::string p_text, std::string font_path, unsigned int p_size,
 }
 
 void TextBox::render(SDL_Renderer* renderer) {
-    SDL_Surface* surfaceMessage = TTF_RenderText_Solid(font, text.c_str(), color);
+    SDL_Surface* surfaceMessage = //TTF_RenderText_Solid(font, text.c_str(), color);
+        TTF_RenderText_Blended(font, text.c_str(), color);
     SDL_Texture* message = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
+    SDL_FreeSurface(surfaceMessage);
 
     SDL_Rect dest;
     SDL_QueryTexture(message, NULL, NULL, &dest.w, &dest.h);
     dest.x = posX - dest.w / 2;
     dest.y = posY - dest.h / 2;
     SDL_RenderCopy(renderer, message, NULL, &dest);
+
+    SDL_DestroyTexture(message);
 }
 
 

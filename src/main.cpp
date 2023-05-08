@@ -5,17 +5,15 @@
 int main(int argc, char** argv)
 {
     bool running = true;
-    Game* game = new Game();
+    Game game;
     int exitCode = 0;
     while (running) {
         // Run game
-        exitCode = game->startMenu(argc, argv);
-        if (exitCode == 0) exitCode = game->gameStart(argc, argv);
-        if (exitCode == 0) exitCode = game->gameOver(argc, argv);
+        exitCode = game.startMenu(argc, argv);
+        if (exitCode == 0) exitCode = game.gameStart(argc, argv);
+        if (exitCode == 0) exitCode = game.gameOver(argc, argv);
         if (exitCode != 0) running = false;
     }
-    game->~Game();
-    free(game);
 
 // Return exit code
     std::cout << "Exit code: " << exitCode << '\n';
