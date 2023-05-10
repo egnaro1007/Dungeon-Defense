@@ -75,10 +75,12 @@ void Entity::setStatus(unsigned int p_status) {
 
 int _VELOCITY_ = 10;
 void Entity::runLeft() {
+    if (getLeft() < 100) return;
     setStatus(_STATUS_WALK_LEFT_);
     move(-_VELOCITY_, 0);
 }
 void Entity::runRight() {
+    if (getRight() > 1920 - 150) return;
     setStatus(_STATUS_WALK_RIGHT_);
     move(_VELOCITY_, 0);
 }

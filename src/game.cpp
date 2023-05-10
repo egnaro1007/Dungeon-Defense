@@ -237,6 +237,10 @@ int Game::gameStart(int argc, char** argv)
         // Player gravity
         if (!platformCollisionCheck(player, levelPlaform, 0, _MAIN_CHARACTER_GRAVITY_)) {
             if (!pause) player.move(0, _MAIN_CHARACTER_GRAVITY_);
+            if (player.getTop() > 1080) {
+                player.move(0, -900);
+                player.hurt();
+            }
             player.setFallingState(true);
         }
         else {
