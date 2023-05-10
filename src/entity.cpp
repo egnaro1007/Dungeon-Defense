@@ -99,16 +99,16 @@ SDL_Rect Entity::getCurentFrame() {
 }
 
 int Entity::getTop() {
-    return curentFrame.y;
+    return curentFrame.y + 16;
 }
 int Entity::getLeft() {
-    return curentFrame.x;
+    return curentFrame.x + 32;
 }
 int Entity::getBottom() {
     return curentFrame.y + curentFrame.h;
 }
 int Entity::getRight() {
-    return curentFrame.x + curentFrame.w;
+    return curentFrame.x + curentFrame.w - 32;
 }
 bool Entity::isFalling() {
     return falling;
@@ -163,6 +163,7 @@ void Human::attack(){
     if (attackCooldown()) return;
     if (hurtCooldown()) return;
     lastTimeAttack = SDL_GetTicks();
+    setFrame(0);
 }
 void Human::scoreUp() {
     score++;
