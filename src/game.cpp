@@ -253,14 +253,16 @@ int Game::gameStart(int argc, char** argv)
                 {
                     switch (event.key.keysym.sym) {
                         case SDLK_ESCAPE:
-                            if (pause) {
-                                pause = false;
-                                bgm = true;
-                            }
-                            else {
-                                pause = true;
-                                bgm = false;
-                            }
+							if (event.key.repeat == 0) {
+								if (pause) {
+									pause = false;
+									bgm = true;
+								}
+								else {
+									pause = true;
+									bgm = false;
+								}
+							}
                             break;
                         case SDLK_a:
                             if (pause) break;

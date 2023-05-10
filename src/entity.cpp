@@ -154,7 +154,7 @@ void Human::jump() {
     move(0, -300);
 }
 bool Human::attackCooldown() {
-    Uint32 cooldownTime = 200;//ms
+    Uint32 cooldownTime = 300;//ms
     Uint32 now = SDL_GetTicks();
     if (now - lastTimeAttack < cooldownTime) return true;
     return false;
@@ -180,7 +180,7 @@ unsigned int Human::getHp() {
     return hp;
 }
 bool Human::hurtCooldown() {
-    Uint32 cooldownTime = 1000;//ms
+    Uint32 cooldownTime = 500;//ms
     Uint32 now = SDL_GetTicks();
     if (now - lastTimeHurt < cooldownTime) return true;
     return false;
