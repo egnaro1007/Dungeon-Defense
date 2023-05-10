@@ -68,7 +68,7 @@ int Game::gameStart(int argc, char** argv)
     
     // Load music
     Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024);
-    Mix_Music* music = Mix_LoadMUS("assets/background.mp3");
+    Mix_Music* music = Mix_LoadMUS("music/background.mp3");
     // Load texture
     SDL_Texture* background = loadImage(renderer, "assets/background.png");
     SDL_Texture* human_run = loadImage(renderer, "assets/human/run.png");
@@ -359,7 +359,7 @@ int Game::startMenu(int argc, char** argv)
     SDL_RenderClear(renderer);
     // Load music
     Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024);
-    Mix_Music* music = Mix_LoadMUS("assets/background2.mp3");
+    Mix_Music* music = Mix_LoadMUS("music/menu_bacground.mp3");
     // Audio button
     SDL_Texture* audioButton = loadImage(renderer, "assets/menu/audio.png");
     SDL_Rect audioButtonSrc = {0, 0, 500, 500};
@@ -369,6 +369,7 @@ int Game::startMenu(int argc, char** argv)
     SDL_Texture* menu = loadImage(renderer, "assets/menu/menu.png");
     SDL_Texture* arrow = loadImage(renderer, "assets/menu/arrow.png");
     SDL_Texture* instruction = loadImage(renderer, "assets/menu/instruction.png");
+    SDL_Texture* about = loadImage(renderer, "assets/menu/about.png");
     // Load highscore
     std::ifstream getHighscoreFile;
     getHighscoreFile.open("high.score", std::ios::in);
@@ -444,8 +445,7 @@ int Game::startMenu(int argc, char** argv)
                     renderBackground(instruction);
                     break;
                 case 3:
-                    std::cout << "Funtion in development" << std::endl;
-                    selected = false;
+                    renderBackground(about);
                     break;
                 case 4:
                     return 1;
@@ -471,6 +471,14 @@ int Game::startMenu(int argc, char** argv)
 
         SDL_RenderPresent(renderer);
     }
+
+    Mix_FreeMusic(music);
+    SDL_DestroyTexture(audioButton);
+    SDL_DestroyTexture(menuBackground);
+    SDL_DestroyTexture(menu);
+    SDL_DestroyTexture(arrow);
+    SDL_DestroyTexture(instruction);
+    SDL_DestroyTexture(about);
     return 0;
 }
 
@@ -481,7 +489,7 @@ int Game::gameOver(int argc, char** argv)
     // Load music
     Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024);
     // Load texture
-    Mix_Music* music = Mix_LoadMUS("assets/background2.mp3");
+    Mix_Music* music = Mix_LoadMUS("music/gameover_bacground.mp3");
     SDL_Texture* menuBackground = loadImage(renderer, "assets/menu/background.png");
     SDL_Texture* gameOver = loadImage(renderer, "assets/menu/gameover.png");
     // Load highscore
@@ -532,6 +540,10 @@ int Game::gameOver(int argc, char** argv)
         scoreTextBox.render(renderer);
         SDL_RenderPresent(renderer);
     }
+
+    Mix_FreeMusic(music);
+    SDL_DestroyTexture(menuBackground);
+    SDL_DestroyTexture(gameOver);
     return 0;
 }
 
