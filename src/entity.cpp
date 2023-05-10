@@ -135,7 +135,6 @@ void Entity::updateSprite() {
 }
 
 void Entity::render(SDL_Renderer* renderer, int topCalibration, int bottomCalibration, int leftCalibration, int rightCalibration) {
-    updateSprite();
 
     SDL_Rect src = getSrc();
 

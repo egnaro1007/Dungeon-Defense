@@ -78,6 +78,8 @@ int Game::gameStart(int argc, char** argv)
     SDL_Texture* heart = loadImage(renderer, "assets/status/heart.png");
     SDL_Texture* door = loadImage(renderer, "assets/status/door.png");
 
+    SDL_Texture* pauseMenu = loadImage(renderer, "assets/menu/pause.png");
+
     // Load level's platform
     std::vector<platform> levelPlaform = loadLevel("level.dat");
 
@@ -127,6 +129,9 @@ int Game::gameStart(int argc, char** argv)
     Mix_PlayMusic(music, -1);
     // Declare running variable
     bool running = true;
+    bool pause = false;
+
+    int numberOfPigs = 0;
     SDL_Event event;
     srand(time(NULL));
     // Main loop
@@ -155,51 +160,55 @@ int Game::gameStart(int argc, char** argv)
 
         // Pig spawns
         Uint32 now = SDL_GetTicks();
-        if (now - lastTimeSpawn > spawnTime) {
-            // After spawnTime ms
-            // Spawn a new pig
-            Pig newPig;
-            if (rand() % 2 == 0) newPig.init(pig_run, 6, 38, 28, 19*4, 22*4, 100, 100);
-            else newPig.init(pig_run, 6, 38, 28, 19*4, 22*4, 1820, 100);
-            pigs.push_back(newPig);
-            // Reset timer
-            lastTimeSpawn = now;
-            spawnTime = rand() % _SPAWN_TIME_MAX_ + _SPAWN_TIME_MIN_;
-        }
         
-        unsigned int numberOfPigs = pigs.size();
-        for (unsigned int i = 0; i < numberOfPigs; i++) {
-            // Move pig
-            pigs[i].updateLocation();
-            // Delete pig when it's out of screen
-            if (pigs[i].getCurentFrame().y > 1080) {
-                pigs.erase(pigs.begin() + i);
-                health--;
+        if (!pause) {
+            if (now - lastTimeSpawn > spawnTime) {
+                // After spawnTime ms
+                // Spawn a new pig
+                Pig newPig;
+                if (rand() % 2 == 0) newPig.init(pig_run, 6, 38, 28, 19*4, 22*4, 100, 100);
+                else newPig.init(pig_run, 6, 38, 28, 19*4, 22*4, 1820, 100);
+                pigs.push_back(newPig);
+                numberOfPigs++;
+                // Reset timer
+                lastTimeSpawn = now;
+                spawnTime = rand() % _SPAWN_TIME_MAX_ + _SPAWN_TIME_MIN_;
             }
-            // Check collision with platform to set falling state
-            if (!platformCollisionCheck(pigs[i], levelPlaform, 0, _MAIN_CHARACTER_GRAVITY_)) {
-                pigs[i].setFallingState(true);
-            }
-            else {
-                pigs[i].setFallingState(false);
-            }
+            
+            // unsigned int numberOfPigs = pigs.size();
+            for (unsigned int i = 0; i < numberOfPigs; i++) {
+                // Move pig
+                if (!pause) pigs[i].updateLocation();
+                // Delete pig when it's out of screen
+                if (pigs[i].getCurentFrame().y > 1080) {
+                    pigs.erase(pigs.begin() + i);
+                    health--;
+                }
+                // Check collision with platform to set falling state
+                if (!platformCollisionCheck(pigs[i], levelPlaform, 0, _MAIN_CHARACTER_GRAVITY_)) {
+                    pigs[i].setFallingState(true);
+                }
+                else {
+                    pigs[i].setFallingState(false);
+                }
 
-            // Check collision with player
-            if (collisionCheckEtoE(player, pigs[i])) {
-                player.hurt();
-            }
+                // Check collision with player
+                if (collisionCheckEtoE(player, pigs[i])) {
+                    player.hurt();
+                }
 
 
-            // Check collision with player's attack
-            int playerAttackRangeX = player.getCurentFrame().w;
-            int playerAttackRangeY = 0;
-            int direction = player.getStatus();
-            if (!player.isFalling() && player.attackCooldown() && attackCheck(player, pigs[i], playerAttackRangeX, playerAttackRangeY, direction)) {
-                pigs.erase(pigs.begin() + i);
-                player.scoreUp();
+                // Check collision with player's attack
+                int playerAttackRangeX = player.getCurentFrame().w;
+                int playerAttackRangeY = 0;
+                int direction = player.getStatus();
+                if (!player.isFalling() && player.attackCooldown() && attackCheck(player, pigs[i], playerAttackRangeX, playerAttackRangeY, direction)) {
+                    pigs.erase(pigs.begin() + i);
+                    numberOfPigs--;
+                    player.scoreUp();
+                }
             }
         }
-
 
     // PLAYER
 
@@ -225,13 +234,16 @@ int Game::gameStart(int argc, char** argv)
             }
         }
 
+        // Player gravity
         if (!platformCollisionCheck(player, levelPlaform, 0, _MAIN_CHARACTER_GRAVITY_)) {
-            player.move(0, _MAIN_CHARACTER_GRAVITY_);
+            if (!pause) player.move(0, _MAIN_CHARACTER_GRAVITY_);
             player.setFallingState(true);
         }
         else {
             player.setFallingState(false);
         }
+
+        // Handle input control
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
                 case SDL_QUIT:
@@ -241,17 +253,27 @@ int Game::gameStart(int argc, char** argv)
                 {
                     switch (event.key.keysym.sym) {
                         case SDLK_ESCAPE:
-                            running = false;
+                            if (pause) {
+                                pause = false;
+                                bgm = true;
+                            }
+                            else {
+                                pause = true;
+                                bgm = false;
+                            }
                             break;
                         case SDLK_a:
+                            if (pause) break;
                             player.runLeft();
                             player.setTexture(human_run, 78, 58, 8);
                             break;
                         case SDLK_d:
+                            if (pause) break;
                             player.runRight();
                             player.setTexture(human_run, 78, 58, 8);
                             break;
                         case SDLK_w:
+                            if (pause) break;
                             // if (!player.isFalling()) {
                             //     player.move(0, -10);
                             // }
@@ -260,6 +282,7 @@ int Game::gameStart(int argc, char** argv)
                             }
                             break;
                         case SDLK_SPACE:
+                            if (pause) break;
                             if (event.key.repeat == 0){
                                 player.attack();
                             }
@@ -290,6 +313,11 @@ int Game::gameStart(int argc, char** argv)
 
 
     // RENDER
+        // Update sprites
+        if (!pause) {
+            player.updateSprite();
+            for (unsigned int i = 0; i < numberOfPigs; i++) pigs[i].updateSprite();
+        }
 
         // Clear screen
         SDL_RenderClear(renderer);
@@ -302,10 +330,11 @@ int Game::gameStart(int argc, char** argv)
         healthBar.render(renderer);
         // Render pigs
         for (unsigned int i = 0; i < numberOfPigs; i++) pigs[i].render(renderer, 6*4, 0, 10*4, 9*4);
-            //render(pig);
         // Render player
-        // render(player);
         player.render(renderer, 15*3, 14*3, 9*3, 32*3);
+        
+        // Game pause screen
+        if (pause) renderBackground(pauseMenu);
 
         SDL_RenderPresent(renderer);
 
@@ -318,6 +347,7 @@ int Game::gameStart(int argc, char** argv)
             running = false;
         }
     }
+    if (pause && !bgm) bgm = true;
     returnGameScore(player.getScore());
     return 0;
 }
@@ -352,6 +382,7 @@ int Game::startMenu(int argc, char** argv)
     // 4: exit
     const int numberOfOptions = 4;
     // selectedOption from 1 to [numberOfOptions]
+    
     
     Mix_PlayMusic(music, -1);
     bool running = true;

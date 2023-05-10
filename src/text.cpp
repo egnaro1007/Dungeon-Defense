@@ -6,7 +6,8 @@
 TextBox::TextBox(std::string p_text, std::string font_path, unsigned int p_size, Uint8 r, Uint8 g, Uint8 b, Uint8 a, int p_x = 0, int p_y = 0) {
     text = p_text;
     font = TTF_OpenFont(font_path.c_str(), p_size);
-    if (font == NULL) std::cout << "Unable to load font " << font_path << "!\nSDL_ttf Error: " << TTF_GetError() << "\n";
+    if (font == NULL) std::cout << "Unable to load font " << font_path << "!\nSDL_ttf Error: "
+     << TTF_GetError() << "\n";
     size = p_size;
     color = {r, g, b, a};
     posX = p_x;
