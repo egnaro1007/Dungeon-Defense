@@ -1,4 +1,3 @@
-#include <iostream>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include "../include/game.h"
@@ -17,7 +16,7 @@ SDL_Texture* loadImage(SDL_Renderer* renderer, const char* file)
 {
     SDL_Texture* texture = NULL;
     texture = IMG_LoadTexture(renderer, file);
-    if (texture == NULL) std::cout << "Unable to load image " << file << "!\nSDL_image Error: " << IMG_GetError() << "\n";
+    if (texture == NULL) SDL_Log("Unable to load texture: %s", IMG_GetError());
     return texture;
 }
 

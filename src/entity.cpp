@@ -1,8 +1,6 @@
 #include <SDL2/SDL.h>
 #include "../include/entity.hpp"
 
-#include <iostream>
-
 enum _STATUS_ {
     _STATUS_PREVIOUS_ = 0,
     _STATUS_WALK_LEFT_ = 3,
@@ -177,7 +175,7 @@ void Human::hurt() {
     if (hurtCooldown()) return;
     lastTimeHurt = SDL_GetTicks();
     hp--;
-    std::cout << "Ouch!" << std::endl;
+    SDL_Log("Ouch!");
 }
 unsigned int Human::getHp() {
     return hp;

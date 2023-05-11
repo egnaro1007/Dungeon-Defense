@@ -2,7 +2,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_mixer.h>
-#include <iostream>
+
 #include <vector>
 #include <string>
 #include <ctime>
@@ -130,6 +130,7 @@ int Game::gameStart(int argc, char** argv)
     // Declare running variable
     bool running = true;
     bool pause = false;
+    int maxPigs = 1e9;      // Limit number of pigs
 
     int numberOfPigs = 0;
     SDL_Event event;
@@ -162,7 +163,7 @@ int Game::gameStart(int argc, char** argv)
         Uint32 now = SDL_GetTicks();
         
         if (!pause) {
-            if (now - lastTimeSpawn > spawnTime) {
+            if ((numberOfPigs <= maxPigs) && (now - lastTimeSpawn > spawnTime)) {
                 // After spawnTime ms
                 // Spawn a new pig
                 Pig newPig;
